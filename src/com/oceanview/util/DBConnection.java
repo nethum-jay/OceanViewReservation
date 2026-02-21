@@ -12,7 +12,7 @@ public class DBConnection {
     // 2. Private constructor
     private String url = "jdbc:mysql://localhost:3306/oceanview_db";
     private String username = "root";
-    private String password = "root123";
+    private String password = "root";
 
 
     private DBConnection() {
@@ -31,7 +31,6 @@ public class DBConnection {
         return instance;
     }
 
-    public Connection getConnection() {
-        return connection;
+    public Connection getConnection() {return connection;
     }
 }

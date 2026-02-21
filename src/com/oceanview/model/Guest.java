@@ -1,26 +1,30 @@
 package com.oceanview.model;
 
 public class Guest {
-    private int guestID;
     private String name;
+    private String nic;
+    private String email;
     private String address;
     private String contactNo;
 
-    // Constructors
     public Guest() {}
 
-    public Guest(String name, String address, String contactNo) {
+    public Guest(String name, String nic, String email, String address, String contactNo) {
         this.name = name;
+        this.nic = nic;
+        this.email = email;
         this.address = address;
         this.contactNo = contactNo;
     }
 
-    // Getters and Setters (Encapsulation)
-    public int getGuestID() { return guestID; }
-    public void setGuestID(int guestID) { this.guestID = guestID; }
-
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
+
+    public String getNic() { return nic; }
+    public void setNic(String nic) { this.nic = nic; }
+
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }

@@ -28,7 +28,14 @@ public class GuestServlet extends HttpServlet {
         }
 
         // 3. Create Model Object
-        Guest newGuest = new Guest(name, address, contactNo);
+        String nic = request.getParameter("nic");
+        String email = request.getParameter("email");
+
+        if (nic == null || nic.isEmpty()) {
+            nic = "Temp-" + System.currentTimeMillis();
+        }
+
+        Guest newGuest = new Guest(name, nic, email, address, contactNo);
 
         // 4. Pass to DAO
         GuestDAO guestDAO = new GuestDAO();

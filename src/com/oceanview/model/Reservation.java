@@ -1,7 +1,5 @@
 package com.oceanview.model;
 
-import java.util.Date;
-
 public class Reservation {
     private int resID;
     private int guestID;
