@@ -16,7 +16,7 @@ public class ReservationDAO {
     public boolean bookRoom(Reservation reservation) {
         boolean isSuccess = false;
         // Connecting to the database through the DBConnection class
-        Connection conn = com.oceanview.util.DBConnection.getInstance().getConnection();
+        Connection conn = DBConnection.getInstance().getConnection();
         String sql = "INSERT INTO Reservation (guestID, roomType, checkInDate, checkOutDate) VALUES (?, ?, ?, ?)";
 
         try {
@@ -97,7 +97,7 @@ public class ReservationDAO {
         java.sql.Connection conn = null;
 
         try {
-            conn = com.oceanview.util.DBConnection.getInstance().getConnection();
+            conn = DBConnection.getInstance().getConnection();
             // JOIN the Guest and Reservation tables
             String sql = "SELECT g.guestID, g.name, g.address, g.contactNo, r.reservationID, r.roomType, r.checkInDate, r.checkOutDate " +
                     "FROM Guest g JOIN Reservation r ON g.guestID = r.guestID " +
