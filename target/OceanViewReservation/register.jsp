@@ -77,7 +77,7 @@
             <label>Choose Username</label>
             <div class="input-container">
                 <i class="fa-solid fa-user"></i>
-                <input type="text" name="username" placeholder="Enter new username" required>
+                <input type="text" name="username" placeholder="Enter new username" required oninput="capitalizeFirstLetter(this)">
             </div>
         </div>
 
@@ -90,15 +90,10 @@
         </div>
 
         <div class="input-group">
-            <label>Select System Role</label>
+            <label>Phone Number</label>
             <div class="input-container">
-                <i class="fa-solid fa-user-tag"></i>
-                <select name="role" required>
-                    <option value="" disabled selected>Select your role</option>
-                    <option value="Customer">Customer</option>
-                    <option value="Staff">Staff</option>
-                    <option value="Admin">Admin</option>
-                </select>
+                <i class="fa-solid fa-phone"></i>
+                <input type="tel" name="phone" placeholder="07XXXXXXXX" required pattern="[0-9]{10}">
             </div>
         </div>
 
@@ -112,5 +107,15 @@
         </a>
     </div>
 </div>
+
+<script>
+    function capitalizeFirstLetter(inputField) {
+        let text = inputField.value;
+        if (text.length > 0) {
+            inputField.value = text.charAt(0).toUpperCase() + text.slice(1);
+        }
+    }
+</script>
+
 </body>
 </html>

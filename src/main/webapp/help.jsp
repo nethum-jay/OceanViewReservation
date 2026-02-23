@@ -91,7 +91,7 @@
         <img src="https://cdn-icons-png.flaticon.com/512/3009/3009489.png" alt="Logo">
         <h1>Ocean View Resort</h1>
     </div>
-    <a href="dashboard.jsp" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a>
+    <a href="customer_dashboard.jsp" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a>
 </header>
 
 <main>

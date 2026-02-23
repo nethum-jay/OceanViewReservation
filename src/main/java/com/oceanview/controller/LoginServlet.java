@@ -19,19 +19,20 @@ public class LoginServlet extends HttpServlet {
         String pass = request.getParameter("password");
 
         UserDAO userDao = new UserDAO();
-        User loggedInUser = userDao.authenticateUser(uname, pass);
+        User user = userDao.authenticateUser(uname, pass);
 
-        if (loggedInUser != null) {
+        if (user != null) {
             HttpSession session = request.getSession();
-            session.setAttribute("loggedUser", loggedInUser.getUsername());
-            session.setAttribute("userRole", loggedInUser.getRole());
-            session.setAttribute("userId", loggedInUser.getId());
+            session.setAttribute("loggedUser", user.getUsername());
+            session.setAttribute("userRole", user.getRole());
 
-            response.sendRedirect("dashboard.jsp");
-        } else {
-            // If login fails, return to the Login page with an Error message
-            request.setAttribute("errorMessage", "Invalid Username or Password!");
-            request.getRequestDispatcher("login.jsp").forward(request, response);
+            if ("Admin".equalsIgnoreCase(user.getRole())) {
+                response.sendRedirect("admin_dashboard.jsp");
+            } else if ("Staff".equalsIgnoreCase(user.getRole())) {
+                response.sendRedirect("staff_dashboard.jsp");
+            } else {
+                response.sendRedirect("customer_dashboard.jsp");
+            }
         }
     }
 }

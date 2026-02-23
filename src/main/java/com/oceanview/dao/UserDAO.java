@@ -32,22 +32,28 @@ public class UserDAO {
         return user;
     }
     // Method for registering new users
-    public boolean registerUser(User user, String password) {
+    public boolean registerUser(User user) {
         boolean isSuccess = false;
-        try {
-            Connection conn = DBConnection.getInstance().getConnection();
-            String sql = "INSERT INTO users (username, password, role) VALUES (?, ?, ?)";
-            PreparedStatement ps = conn.prepareStatement(sql);
-            ps.setString(1, user.getUsername());
-            ps.setString(2, password);
-            ps.setString(3, user.getRole());
+        java.sql.Connection conn = null;
 
-            int result = ps.executeUpdate();
-            if (result > 0) {
+        try {
+            conn = DBConnection.getInstance().getConnection();
+            String sql = "INSERT INTO users (username, password, role, phone) VALUES (?, ?, ?, ?)";
+            java.sql.PreparedStatement pstmt = conn.prepareStatement(sql);
+
+            pstmt.setString(1, user.getUsername());
+            pstmt.setString(2, user.getPassword());
+            pstmt.setString(3, user.getRole());
+            pstmt.setString(4, user.getPhone());
+
+            int rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected > 0) {
                 isSuccess = true;
             }
         } catch (Exception e) {
             e.printStackTrace();
+            // Throwing the actual error message from the database to the Servlet
+            throw new RuntimeException(e.getMessage());
         }
         return isSuccess;
     }

@@ -3,6 +3,7 @@ package com.oceanview.controller;
 import com.oceanview.dao.ReservationDAO;
 import com.oceanview.model.Guest;
 import com.oceanview.model.Reservation;
+import com.oceanview.util.EmailUtil;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -38,21 +39,23 @@ public class AddNewReservationServlet extends HttpServlet {
 
             // Sending to the Database via DAO
             ReservationDAO dao = new ReservationDAO();
-
             int generatedId = dao.addCompleteReservation(guest, reservation);
 
-            // If the ID is greater than 0, the registration is successful.
             if (generatedId > 0) {
-                request.setAttribute("successMessage", "Reservation Successfully Added! Your Guest/Booking ID is: " + generatedId);
+
+                EmailUtil.sendBookingEmail(email, name, roomType);
+
+                request.setAttribute("successMessage", "Reservation Successfully Added! Confirmation email sent to " + email);
             } else {
                 request.setAttribute("errorMessage", "Failed to add reservation. Please try again.");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("errorMessage", "System Error occurred!");
+            String exactError = (e.getMessage() != null) ? e.getMessage() : "System Error occurred!";
+            request.setAttribute("errorMessage", "Database Error: " + exactError);
         }
 
-        request.getRequestDispatcher("addReservation.jsp").forward(request, response);
+        request.getRequestDispatcher("booking.jsp").forward(request, response);
     }
 }

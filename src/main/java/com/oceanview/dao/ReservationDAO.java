@@ -75,12 +75,16 @@ public class ReservationDAO {
 
         } catch (Exception e) {
             e.printStackTrace();
-            generatedGuestID = -1; // දෝෂයක් ආවොත් -1 යවයි
+            generatedGuestID = -1;
             try {
                 if (conn != null) conn.rollback();
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
+
+            // Send the actual error message from the database to the Servlet
+            throw new RuntimeException(e.getMessage());
+
         } finally {
             try {
                 if (conn != null) conn.setAutoCommit(true);
@@ -88,7 +92,7 @@ public class ReservationDAO {
                 ex.printStackTrace();
             }
         }
-        return generatedGuestID; // අලුත් ID අංකය ආපසු යවයි
+        return generatedGuestID;
     }
 
     // How to get full reservation details

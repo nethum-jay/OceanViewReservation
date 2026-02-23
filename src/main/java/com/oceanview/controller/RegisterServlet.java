@@ -14,25 +14,37 @@ import java.io.IOException;
 public class RegisterServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String uname = request.getParameter("username");
-        String pass = request.getParameter("password");
-        String role = request.getParameter("role");
 
-        User newUser = new User();
-        newUser.setUsername(uname);
-        newUser.setRole(role);
+        try {
+            // Retrieving data from the JSP page
+            String uname = request.getParameter("username");
+            String pass = request.getParameter("password");
+            String phone = request.getParameter("phone");
 
-        UserDAO userDao = new UserDAO();
-        boolean isRegistered = userDao.registerUser(newUser, pass);
+            String role = "Customer";
 
-        if (isRegistered) {
-            // If registration is successful, send to Login page
-            request.setAttribute("successMessage", "Account created successfully! Please login.");
-            request.getRequestDispatcher("login.jsp").forward(request, response);
-        } else {
-            // If registration fails (e.g. if the name is already taken) display an error
-            request.setAttribute("errorMessage", "Registration failed! Username might already exist.");
-            request.getRequestDispatcher("register.jsp").forward(request, response);
+            User newUser = new User();
+            newUser.setUsername(uname);
+            newUser.setPassword(pass);
+            newUser.setRole(role);
+            newUser.setPhone(phone);
+
+            UserDAO userDao = new UserDAO();
+            boolean isRegistered = userDao.registerUser(newUser);
+
+            if (isRegistered) {
+                request.setAttribute("successMessage", "Account created successfully! You can now login.");
+            } else {
+                request.setAttribute("errorMessage", "Registration failed! Please try again.");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Send the actual error from the database to the UI
+            String exactError = (e.getMessage() != null) ? e.getMessage() : "System Error occurred!";
+            request.setAttribute("errorMessage", "Database Error: " + exactError);
         }
+
+        request.getRequestDispatcher("register.jsp").forward(request, response);
     }
 }
