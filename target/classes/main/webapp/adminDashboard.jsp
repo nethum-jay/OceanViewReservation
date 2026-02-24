@@ -4,9 +4,9 @@
     String userRole = (String) session.getAttribute("userRole");
     Integer userId = (Integer) session.getAttribute("userId");
 
-    // Security Check: Customer
-    if (userRole == null || !"Customer".equals(userRole)) {
-        response.sendRedirect("login.jsp?error=Please Login First");
+    // Security Check Admin
+    if (userRole == null || !"Admin".equals(userRole)) {
+        response.sendRedirect("login.jsp?error=Unauthorized Access!");
         return;
     }
 %>
@@ -14,11 +14,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>My Account - Premium</title>
+    <title>Admin Dashboard - Premium</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* CSS Admin Dashboard එකට සමානයි (ඒකාකාරී පෙනුම සඳහා) */
         :root { --primary: #005f73; --secondary: #0a9396; --accent: #94d2bd; --text-dark: #1a1a1a; --text-muted: #555; --white: #ffffff; --danger: #e63946; }
         body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background: url('https://images.unsplash.com/photo-1618140052121-39fc6db33972?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed; background-size: cover; color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; }
         .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.4); z-index: -1; }
@@ -58,7 +57,7 @@
     </div>
     <div class="header-buttons">
         <span style="font-weight: 600; color: var(--primary); margin-right: 15px; font-size: 15px;">
-            <i class="fa-solid fa-circle-user" style="color: var(--secondary); font-size: 18px; margin-right: 5px;"></i>
+            <i class="fa-solid fa-user-shield" style="color: var(--secondary); font-size: 18px; margin-right: 5px;"></i>
             <span style="text-transform: capitalize;"><%= loggedUser %></span>
         </span>
         <a href="LogoutServlet" class="nav-btn logout-btn"><i class="fa-solid fa-power-off"></i> Logout</a>
@@ -72,37 +71,37 @@
             <div class="user-badge" style="background: #eef2f5; color: #333; margin-right: 10px;">
                 <i class="fa-solid fa-id-badge"></i> Your ID: <%= userId %>
             </div>
-            <div class="user-badge"><i class="fa-solid fa-star"></i> Role: <%= userRole %></div>
-            <p style="margin-top: 15px;">Manage your resort reservations efficiently and securely.</p>
+            <div class="user-badge"><i class="fa-solid fa-shield"></i> Role: <%= userRole %></div>
+            <p style="margin-top: 15px;">System Overview and Management Panel.</p>
         </div>
 
         <div class="grid-container">
-            <a href="booking.jsp" class="card">
-                <div class="icon-box"><i class="fa-solid fa-calendar-check"></i></div>
-                <h3>Book Room</h3>
-                <p>Book a room for yourself.</p>
+            <a href="ManageUsersServlet" class="card">
+                <div class="icon-box"><i class="fa-solid fa-users-gear"></i></div>
+                <h3>Manage Users</h3>
+                <p>Add, edit or remove users.</p>
             </a>
-            <a href="viewReservation.jsp" class="card">
-                <div class="icon-box"><i class="fa-solid fa-suitcase"></i></div>
-                <h3>My Bookings</h3>
-                <p>Search & manage bookings.</p>
+            <a href="viewReservations.jsp" class="card">
+                <div class="icon-box"><i class="fa-solid fa-calendar-alt"></i></div>
+                <h3>All Bookings</h3>
+                <p>View all system reservations.</p>
             </a>
-            <a href="#" class="card">
-                <div class="icon-box"><i class="fa-solid fa-user-edit"></i></div>
-                <h3>My Profile</h3>
-                <p>Update personal details.</p>
+            <a href="reports.jsp" class="card">
+                <div class="icon-box"><i class="fa-solid fa-chart-pie"></i></div>
+                <h3>View Reports</h3>
+                <p>Analyze system performance.</p>
             </a>
-            <a href="help.jsp" class="card">
-                <div class="icon-box"><i class="fa-solid fa-headset"></i></div>
-                <h3>Help & Support</h3>
-                <p>System user guidelines.</p>
+            <a href="settings.jsp" class="card">
+                <div class="icon-box"><i class="fa-solid fa-cogs"></i></div>
+                <h3>System Settings</h3>
+                <p>Configure application details.</p>
             </a>
         </div>
     </div>
 </main>
 
 <footer>
-    &copy; 2026 Ocean View Resort - Reservation System. Developed for CIS6003.
+    &copy; 2026 Ocean View Resort - Reservation System. All Rights Reserved. <br> Developed for Advanced Programming Assignment.
 </footer>
 
 </body>

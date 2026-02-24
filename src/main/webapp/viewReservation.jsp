@@ -1,10 +1,23 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.Map" %>
+
+<%
+    String userRole = (String) session.getAttribute("userRole");
+
+    String dashboardLink = "customerDashboard.jsp";
+
+    if ("Staff".equals(userRole)) {
+        dashboardLink = "staffDashboard.jsp";
+    } else if ("Admin".equals(userRole)) {
+        dashboardLink = "adminDashboard.jsp";
+    }
+%>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Ocean View Resort - Display Reservation</title>
+    <title>Ocean View Resort - Search Reservation</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -32,7 +45,6 @@
 
         .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.45); z-index: -1; }
 
-        /* Header Styling */
         header {
             background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px);
             padding: 15px 50px; display: flex; justify-content: space-between; align-items: center;
@@ -51,7 +63,6 @@
         main { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; animation: fadeIn 0.6s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Search Container (Glass Effect) */
         .search-container {
             background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px);
             padding: 25px 35px; border-radius: 15px; width: 100%; max-width: 550px; text-align: center;
@@ -71,7 +82,6 @@
         }
         .search-container button:hover { box-shadow: 0 5px 15px rgba(0,95,115,0.3); transform: translateY(-2px); }
 
-        /* Details Card (Glass Effect) */
         .details-card {
             background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(15px);
             padding: 35px; border-radius: 15px; width: 100%; max-width: 600px;
@@ -86,7 +96,6 @@
         .detail-row .label i { color: var(--secondary); width: 20px; text-align: center; font-size: 16px; }
         .detail-row .value { color: var(--text-muted); font-weight: 500; font-size: 15px; text-align: right; }
 
-        /* Error Alert */
         .error-msg { color: var(--danger); font-weight: 600; font-size: 14px; background: #ffe6e6; padding: 12px; border-radius: 8px; border: 1px solid var(--danger); text-align: center; width: 100%; max-width: 500px; }
 
         footer { text-align: center; padding: 15px; color: rgba(255,255,255,0.9); font-size: 13px; backdrop-filter: blur(8px); background: rgba(0,0,0,0.6); margin-top: auto; }
@@ -101,14 +110,16 @@
         <img src="https://cdn-icons-png.flaticon.com/512/3009/3009489.png" alt="Logo">
         <h1>Ocean View Resort</h1>
     </div>
-    <a href="staff_dashboard.jsp" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a>
+    <a href="<%= dashboardLink %>" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a>
 </header>
 
 <main>
     <div class="search-container">
-        <h3 style="margin: 0; color: var(--primary);"><i class="fa-solid fa-magnifying-glass"></i> Search Reservation</h3>
+        <h3 style="margin: 0; color: var(--primary); margin-bottom: 10px;">
+            <i class="fa-solid fa-phone"></i> Search by Phone Number
+        </h3>
         <form action="ViewReservationServlet" method="GET">
-            <input type="text" name="guestID" placeholder="Enter Guest ID (e.g. 1)" required>
+            <input type="tel" name="contactNo" placeholder="Enter Customer Phone (e.g. 07XXXXXXXX)" required pattern="[0-9]{10}">
             <button type="submit">Search</button>
         </form>
     </div>
@@ -122,7 +133,12 @@
         if(details != null) {
     %>
     <div class="details-card">
-        <h2><span>Booking Information</span> <span style="font-size: 16px; color: var(--text-muted);"><i class="fa-solid fa-hashtag"></i> <%= details.get("reservationID") %></span></h2>
+        <h2>
+            <span>Booking Information</span>
+            <span style="font-size: 16px; color: var(--text-muted);">
+                <i class="fa-solid fa-hashtag"></i> <%= details.get("reservationID") %>
+            </span>
+        </h2>
 
         <div class="detail-row">
             <span class="label"><i class="fa-solid fa-user"></i> Guest Full Name:</span>

@@ -2,11 +2,10 @@
 <%
     String loggedUser = (String) session.getAttribute("loggedUser");
     String userRole = (String) session.getAttribute("userRole");
-    Integer userId = (Integer) session.getAttribute("userId");
 
-    // Security Check: Staff
-    if (userRole == null || !"Staff".equals(userRole)) {
-        response.sendRedirect("login.jsp?error=Unauthorized Access!");
+    // Security Check Customer only login
+    if (userRole == null || !"Customer".equals(userRole)) {
+        response.sendRedirect("login.jsp?error=Please Login First");
         return;
     }
 %>
@@ -14,11 +13,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Staff Dashboard - Premium</title>
+    <title>My Account - Ocean View Resort</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* CSS Admin Dashboard එකට සමානයි (ඒකාකාරී පෙනුම සඳහා) */
         :root { --primary: #005f73; --secondary: #0a9396; --accent: #94d2bd; --text-dark: #1a1a1a; --text-muted: #555; --white: #ffffff; --danger: #e63946; }
         body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background: url('https://images.unsplash.com/photo-1618140052121-39fc6db33972?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed; background-size: cover; color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; }
         .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.4); z-index: -1; }
@@ -32,7 +30,7 @@
         .logout-btn:hover { background: #d90429; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(230,57,70,0.4); }
         main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; animation: fadeIn 0.8s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .dashboard-wrapper { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); padding: 40px; border-radius: 20px; width: 100%; max-width: 900px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.6); }
+        .dashboard-wrapper { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); padding: 40px; border-radius: 20px; width: 100%; max-width: 1000px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.6); }
         .welcome-header { text-align: center; margin-bottom: 40px; }
         .welcome-header h2 { color: var(--primary); font-size: 32px; font-weight: 700; margin-bottom: 8px; margin-top: 0; }
         .welcome-header p { color: var(--text-muted); font-size: 15px; margin: 0; }
@@ -58,7 +56,7 @@
     </div>
     <div class="header-buttons">
         <span style="font-weight: 600; color: var(--primary); margin-right: 15px; font-size: 15px;">
-            <i class="fa-solid fa-user-tie" style="color: var(--secondary); font-size: 18px; margin-right: 5px;"></i>
+            <i class="fa-solid fa-circle-user" style="color: var(--secondary); font-size: 18px; margin-right: 5px;"></i>
             <span style="text-transform: capitalize;"><%= loggedUser %></span>
         </span>
         <a href="LogoutServlet" class="nav-btn logout-btn"><i class="fa-solid fa-power-off"></i> Logout</a>
@@ -69,35 +67,37 @@
     <div class="dashboard-wrapper">
         <div class="welcome-header">
             <h2>Welcome back, <span style="text-transform: capitalize; color: var(--secondary);"><%= loggedUser %></span>!</h2>
-            <div class="user-badge" style="background: #eef2f5; color: #333; margin-right: 10px;">
-                <i class="fa-solid fa-id-badge"></i> Your ID: <%= userId %>
-            </div>
-            <div class="user-badge"><i class="fa-solid fa-clipboard-user"></i> Role: <%= userRole %></div>
-            <p style="margin-top: 15px;">Manage daily resort operations and guest services.</p>
+            <div class="user-badge"><i class="fa-solid fa-star"></i> Role: <%= userRole %></div>
+            <p style="margin-top: 15px;">Manage your resort reservations efficiently and securely.</p>
         </div>
 
         <div class="grid-container">
             <a href="booking.jsp" class="card">
-                <div class="icon-box"><i class="fa-solid fa-bed"></i></div>
-                <h3>New Reservation</h3>
-                <p>Register guests & book rooms.</p>
+                <div class="icon-box"><i class="fa-solid fa-calendar-check"></i></div>
+                <h3>Book Room</h3>
+                <p>Book a room for yourself.</p>
             </a>
             <a href="viewReservation.jsp" class="card">
-                <div class="icon-box"><i class="fa-solid fa-clipboard-check"></i></div>
-                <h3>Check-in / Out</h3>
-                <p>Manage daily operations.</p>
+                <div class="icon-box"><i class="fa-solid fa-suitcase"></i></div>
+                <h3>My Bookings</h3>
+                <p>Search & manage bookings.</p>
             </a>
-            <a href="printBill.jsp" class="card">
-                <div class="icon-box"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-                <h3>Print Bills</h3>
-                <p>Generate customer invoices.</p>
+            <a href="userProfile.jsp" class="card">
+                <div class="icon-box"><i class="fa-solid fa-user-edit"></i></div>
+                <h3>My Profile</h3>
+                <p>View account details.</p>
+            </a>
+            <a href="help.jsp" class="card">
+                <div class="icon-box"><i class="fa-solid fa-headset"></i></div>
+                <h3>Help & Support</h3>
+                <p>System user guidelines.</p>
             </a>
         </div>
     </div>
 </main>
 
 <footer>
-    &copy; 2026 Ocean View Resort - Reservation System. Developed for CIS6003.
+    &copy; 2026 Ocean View Resort - Reservation System. All Rights Reserved. <br> Developed for Advanced Programming.
 </footer>
 
 </body>

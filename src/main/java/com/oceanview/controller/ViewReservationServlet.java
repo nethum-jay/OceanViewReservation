@@ -1,7 +1,6 @@
 package com.oceanview.controller;
 
 import com.oceanview.dao.ReservationDAO;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -15,25 +14,24 @@ public class ViewReservationServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            // Get the Guest ID provided by the user
-            int guestID = Integer.parseInt(request.getParameter("guestID"));
+            // Get the phone number sent from the JSP page
+            String contactNo = request.getParameter("contactNo");
 
             ReservationDAO dao = new ReservationDAO();
-            Map<String, String> details = dao.getCompleteReservationDetails(guestID);
+            // Retrieving details from the database
+            Map<String, String> details = dao.getCompleteReservationDetails(contactNo);
 
             if (details != null) {
-                // If data is found, send it to the JSP page
                 request.setAttribute("resDetails", details);
             } else {
-                request.setAttribute("errorMessage", "No reservation found for Guest ID: " + guestID);
+                request.setAttribute("errorMessage", "No reservation found for this Phone Number!");
             }
-        } catch (NumberFormatException e) {
-            request.setAttribute("errorMessage", "Invalid Guest ID format. Please enter a valid number.");
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("errorMessage", "System Error occurred!");
+            request.setAttribute("errorMessage", "System Error: " + e.getMessage());
         }
 
+        // Redirect to view_reservation.jsp page
         request.getRequestDispatcher("viewReservation.jsp").forward(request, response);
     }
 }

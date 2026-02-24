@@ -1,7 +1,6 @@
 package com.oceanview.controller;
 
 import com.oceanview.dao.ReservationDAO;
-
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -17,43 +16,46 @@ public class BillingServlet extends HttpServlet {
 
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            int guestID = Integer.parseInt(request.getParameter("guestID"));
+            // Getting the phone number
+            String contactNo = request.getParameter("contactNo");
 
-            // Retrieving data using a previously created method
             ReservationDAO dao = new ReservationDAO();
-            Map<String, String> details = dao.getCompleteReservationDetails(guestID);
+            // Search for details via phone number
+            Map<String, String> details = dao.getCompleteReservationDetails(contactNo);
 
             if (details != null) {
-                // Calculate Number of Nights
+                // Calculating the number of days (Nights)
                 LocalDate checkIn = LocalDate.parse(details.get("checkInDate"));
                 LocalDate checkOut = LocalDate.parse(details.get("checkOutDate"));
                 long nights = ChronoUnit.DAYS.between(checkIn, checkOut);
 
-                if (nights <= 0) nights = 1; // To be counted for at least one day
+                if (nights <= 0) nights = 1; // Must be at least 1 day old
 
-                // Determining room rates by room type
+                // Determining the price by room type
                 String roomType = details.get("roomType");
                 double ratePerNight = 0;
 
                 if ("Single".equalsIgnoreCase(roomType)) {
-                    ratePerNight = 10000.00; // For a single room Rs. 10,000
+                    ratePerNight = 10000.00;
                 } else if ("Double".equalsIgnoreCase(roomType)) {
-                    ratePerNight = 15000.00; // For a double room Rs. 15,000
+                    ratePerNight = 15000.00;
+                } else if ("Family".equalsIgnoreCase(roomType)) {
+                    ratePerNight = 25000.00;
                 } else if ("Suite".equalsIgnoreCase(roomType)) {
-                    ratePerNight = 30000.00; // For a Suite room Rs. 30,000
+                    ratePerNight = 30000.00;
                 }
 
-                // Calculating the total cost
+                // Calculating the total
                 double totalCost = nights * ratePerNight;
 
-                // Passing values to the JSP page
+                // Sending data to the JSP page
                 request.setAttribute("resDetails", details);
                 request.setAttribute("nights", nights);
                 request.setAttribute("ratePerNight", ratePerNight);
                 request.setAttribute("totalCost", totalCost);
 
             } else {
-                request.setAttribute("errorMessage", "No reservation found for Guest ID: " + guestID);
+                request.setAttribute("errorMessage", "No reservation found for Contact No: " + contactNo);
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -27,11 +27,11 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("userRole", user.getRole());
 
             if ("Admin".equalsIgnoreCase(user.getRole())) {
-                response.sendRedirect("admin_dashboard.jsp");
+                response.sendRedirect("adminDashboard.jsp");
             } else if ("Staff".equalsIgnoreCase(user.getRole())) {
-                response.sendRedirect("staff_dashboard.jsp");
+                response.sendRedirect("staffDashboard.jsp");
             } else {
-                response.sendRedirect("customer_dashboard.jsp");
+                response.sendRedirect("customerDashboard.jsp");
             }
         }
     }

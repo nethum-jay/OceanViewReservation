@@ -16,46 +16,59 @@ import java.io.IOException;
 public class AddNewReservationServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
         try {
-            // Getting Guest Details
+            // Data acquisition
             String name = request.getParameter("guestName");
             String nic = request.getParameter("nic");
             String email = request.getParameter("email");
             String address = request.getParameter("address");
             String contactNo = request.getParameter("contactNo");
 
-            Guest guest = new Guest(name, nic, email, address, contactNo);
-
-            // Getting Booking Details
             String roomType = request.getParameter("roomType");
             String checkIn = request.getParameter("checkInDate");
             String checkOut = request.getParameter("checkOutDate");
+            int noOfPersons = Integer.parseInt(request.getParameter("noOfPersons"));
 
+            // Calculating the total price (Bill Amount)
+            double ratePerNight = 0;
+            if ("Single".equalsIgnoreCase(roomType)) ratePerNight = 10000.00;
+            else if ("Double".equalsIgnoreCase(roomType)) ratePerNight = 15000.00;
+            else if ("Family".equalsIgnoreCase(roomType)) ratePerNight = 25000.00;
+            else if ("Suite".equalsIgnoreCase(roomType)) ratePerNight = 30000.00;
+
+
+            java.time.LocalDate d1 = java.time.LocalDate.parse(checkIn);
+            java.time.LocalDate d2 = java.time.LocalDate.parse(checkOut);
+            long nights = java.time.temporal.ChronoUnit.DAYS.between(d1, d2);
+            if (nights <= 0) nights = 1;
+
+            double totalCost = nights * ratePerNight;
+
+            // Creating Objects
+            Guest guest = new Guest(name, nic, email, address, contactNo);
             Reservation reservation = new Reservation();
             reservation.setRoomType(roomType);
             reservation.setCheckInDate(checkIn);
             reservation.setCheckOutDate(checkOut);
+            reservation.setNoOfPersons(noOfPersons);
 
-            // Sending to the Database via DAO
+            // Sending to the database
             ReservationDAO dao = new ReservationDAO();
             int generatedId = dao.addCompleteReservation(guest, reservation);
 
             if (generatedId > 0) {
+                // Sending the email
+                EmailUtil.sendBookingEmail(email, name, roomType, checkIn, checkOut, noOfPersons, totalCost);
 
-                EmailUtil.sendBookingEmail(email, name, roomType);
-
-                request.setAttribute("successMessage", "Reservation Successfully Added! Confirmation email sent to " + email);
+                request.setAttribute("successMessage", "Reservation Added! Digital Invoice sent to " + email);
             } else {
-                request.setAttribute("errorMessage", "Failed to add reservation. Please try again.");
+                request.setAttribute("errorMessage", "Failed to add reservation.");
             }
 
         } catch (Exception e) {
             e.printStackTrace();
-            String exactError = (e.getMessage() != null) ? e.getMessage() : "System Error occurred!";
-            request.setAttribute("errorMessage", "Database Error: " + exactError);
+            request.setAttribute("errorMessage", "Error: " + e.getMessage());
         }
-
         request.getRequestDispatcher("booking.jsp").forward(request, response);
     }
 }

@@ -1,16 +1,17 @@
 package com.oceanview.model;
 
 public class Reservation {
-    private int resID;
+    private int reservationID;
     private int guestID;
     private String roomType;
     private String checkInDate;
     private String checkOutDate;
+    private int noOfPersons;
 
-    // Default Constructor
-    public Reservation() {}
+    // Getters and Setters
+    public int getReservationID() { return reservationID; }
+    public void setReservationID(int reservationID) { this.reservationID = reservationID; }
 
-    // Getters and Setters (Encapsulation)
     public int getGuestID() { return guestID; }
     public void setGuestID(int guestID) { this.guestID = guestID; }
 
@@ -22,4 +23,7 @@ public class Reservation {
 
     public String getCheckOutDate() { return checkOutDate; }
     public void setCheckOutDate(String checkOutDate) { this.checkOutDate = checkOutDate; }
+
+    public int getNoOfPersons() { return noOfPersons; }
+    public void setNoOfPersons(int noOfPersons) { this.noOfPersons = noOfPersons; }
 }

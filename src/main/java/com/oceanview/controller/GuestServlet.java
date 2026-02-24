@@ -15,19 +15,19 @@ import java.io.IOException;
 public class GuestServlet extends HttpServlet {
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // 1. Get user inputs from the interface
+        // Get user inputs from the interface
         String name = request.getParameter("name");
         String address = request.getParameter("address");
         String contactNo = request.getParameter("contactNo");
 
-        // 2. Server-Side Validation (Restricting invalid entries)
+        // Server-Side Validation (Restricting invalid entries)
         if (name == null || name.trim().isEmpty() || contactNo == null || contactNo.length() < 10) {
             request.setAttribute("errorMessage", "Invalid Input. Please check your details.");
             request.getRequestDispatcher("register.jsp").forward(request, response);
             return;
         }
 
-        // 3. Create Model Object
+        // Create Model Object
         String nic = request.getParameter("nic");
         String email = request.getParameter("email");
 
@@ -37,11 +37,11 @@ public class GuestServlet extends HttpServlet {
 
         Guest newGuest = new Guest(name, nic, email, address, contactNo);
 
-        // 4. Pass to DAO
+        // Pass to DAO
         GuestDAO guestDAO = new GuestDAO();
         boolean isRegistered = guestDAO.registerGuest(newGuest);
 
-        // 5. Send response back to UI
+        // Send response back to UI
         if (isRegistered) {
             request.setAttribute("successMessage", "Guest Registered Successfully!");
             request.getRequestDispatcher("register.jsp").forward(request, response);
