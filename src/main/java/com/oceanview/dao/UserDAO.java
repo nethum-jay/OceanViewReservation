@@ -110,7 +110,8 @@ public class UserDAO {
         List<User> userList = new ArrayList<>();
         try {
             Connection conn = DBConnection.getInstance().getConnection();
-            String sql = "SELECT * FROM users";
+            // Obtaining only the necessary data
+            String sql = "SELECT id, username, role, phone FROM users ORDER BY id ASC";
             PreparedStatement ps = conn.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
 
@@ -119,14 +120,10 @@ public class UserDAO {
                 user.setId(rs.getInt("id"));
                 user.setUsername(rs.getString("username"));
                 user.setRole(rs.getString("role"));
-                user.setPhone(rs.getString("phone"));
-                user.setFullName(rs.getString("fullName"));
-                user.setEmail(rs.getString("email"));
+                user.setPhone(rs.getString("phone") != null ? rs.getString("phone") : "Not Set");
                 userList.add(user);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
         return userList;
     }
 
@@ -163,5 +160,28 @@ public class UserDAO {
             ps.setInt(1, id);
             return ps.executeUpdate() > 0;
         } catch (Exception e) { e.printStackTrace(); return false; }
+    }
+
+    // Method for Admin to update user data
+    public boolean updateUserByAdmin(int id, String fullName, String username, String role, String email, String phone) {
+        boolean isSuccess = false;
+        try {
+            java.sql.Connection conn = com.oceanview.util.DBConnection.getInstance().getConnection();
+            String sql = "UPDATE users SET fullName=?, username=?, role=?, email=?, phone=? WHERE id=?";
+            java.sql.PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, fullName);
+            pstmt.setString(2, username);
+            pstmt.setString(3, role);
+            pstmt.setString(4, email);
+            pstmt.setString(5, phone);
+            pstmt.setInt(6, id);
+
+            if (pstmt.executeUpdate() > 0) {
+                isSuccess = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return isSuccess;
     }
 }
