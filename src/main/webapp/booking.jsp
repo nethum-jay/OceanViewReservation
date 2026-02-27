@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page import="com.oceanview.model.User, com.oceanview.dao.UserDAO" %>
 <%
     String loggedUser = (String) session.getAttribute("loggedUser");
     String userRole = (String) session.getAttribute("userRole");
@@ -11,6 +12,12 @@
     String dashboardLink = "customerDashboard.jsp";
     if ("Admin".equals(userRole)) { dashboardLink = "adminDashboard.jsp"; }
     else if ("Staff".equals(userRole)) { dashboardLink = "staffDashboard.jsp"; }
+
+    User u = null;
+    if (loggedUser != null) {
+        UserDAO dao = new UserDAO();
+        u = dao.getUserByUsername(loggedUser);
+    }
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -139,27 +146,32 @@
                     <div class="input-group full-width">
                         <label>Full Name</label>
                         <i class="fa-solid fa-user input-icon"></i>
-                        <input type="text" name="guestName" value="<%= loggedUser != null ? loggedUser : "" %>" required placeholder="E.g. John Doe">
+                        <input type="text" name="guestName" placeholder="Enter Full Name"
+                               value="<%= (u != null && u.getFullName() != null) ? u.getFullName() : "" %>" required>
                     </div>
                     <div class="input-group">
                         <label>NIC / Passport Number</label>
                         <i class="fa-solid fa-id-card input-icon"></i>
-                        <input type="text" name="nic" placeholder="Enter NIC or Passport" required>
+                        <input type="text" name="nic" placeholder="Enter NIC or Passport"
+                               value="<%= (u != null && u.getNic() != null) ? u.getNic() : "" %>" required>
                     </div>
                     <div class="input-group">
                         <label>Email Address</label>
                         <i class="fa-solid fa-envelope input-icon"></i>
-                        <input type="email" name="email" placeholder="john@example.com" required>
+                        <input type="email" name="email" placeholder="john@example.com"
+                               value="<%= (u != null && u.getEmail() != null) ? u.getEmail() : "" %>" required>
                     </div>
                     <div class="input-group full-width">
                         <label>Residential Address</label>
                         <i class="fa-solid fa-map-location-dot input-icon"></i>
-                        <input type="text" name="address" required placeholder="Enter full address">
+                        <input type="text" name="address" placeholder="Enter full address"
+                               value="<%= (u != null && u.getAddress() != null) ? u.getAddress() : "" %>" required>
                     </div>
                     <div class="input-group">
                         <label>Contact Number</label>
                         <i class="fa-solid fa-phone input-icon"></i>
-                        <input type="tel" name="contactNo" required placeholder="07XXXXXXXX" pattern="[0-9]{10}">
+                        <input type="tel" name="contactNo" placeholder="07XXXXXXXX" pattern="[0-9]{10}"
+                               value="<%= (u != null && u.getPhone() != null) ? u.getPhone() : "" %>" required>
                     </div>
                 </div>
 

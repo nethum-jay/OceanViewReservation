@@ -25,7 +25,8 @@ public class ReservationServlet extends HttpServlet {
 
             // Creating a Model object
             Reservation newReservation = new Reservation();
-            newReservation.setGuestID(guestID);
+
+            newReservation.setGuestId(guestID);
             newReservation.setRoomType(roomType);
             newReservation.setCheckInDate(checkInDate);
             newReservation.setCheckOutDate(checkOutDate);

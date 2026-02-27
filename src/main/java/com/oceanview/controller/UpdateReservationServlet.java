@@ -14,7 +14,7 @@ public class UpdateReservationServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
             Reservation r = new Reservation();
-            r.setReservationID(Integer.parseInt(request.getParameter("reservationID")));
+            r.setReservationId(Integer.parseInt(request.getParameter("reservationID")));
             r.setRoomType(request.getParameter("roomType"));
             r.setCheckInDate(request.getParameter("checkInDate"));
             r.setCheckOutDate(request.getParameter("checkOutDate"));

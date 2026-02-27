@@ -21,7 +21,7 @@ public class ReservationDAO {
 
         try {
             Connection conn = DBConnection.getInstance().getConnection();
-            String sql = "SELECT roomType, COUNT(*) as bookedCount FROM Reservation WHERE checkInDate < ? AND checkOutDate > ? GROUP BY roomType";
+            String sql = "SELECT roomType, COUNT(*) as bookedCount FROM reservation WHERE checkInDate < ? AND checkOutDate > ? GROUP BY roomType";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, checkOut);
             pstmt.setString(2, checkIn);
@@ -40,7 +40,7 @@ public class ReservationDAO {
         return availableRooms;
     }
 
-    // Method for saving a booking
+    // Method for saving a booking (Legacy combined method)
     public int addCompleteReservation(Guest guest, Reservation reservation) {
         int guestID = -1;
         Connection conn = null;
@@ -71,7 +71,7 @@ public class ReservationDAO {
             }
 
             if (guestID > 0) {
-                String sqlRes = "INSERT INTO Reservation (guestID, roomType, checkInDate, checkOutDate, noOfPersons) VALUES (?, ?, ?, ?, ?)";
+                String sqlRes = "INSERT INTO reservation (guestID, roomType, checkInDate, checkOutDate, noOfPersons) VALUES (?, ?, ?, ?, ?)";
                 PreparedStatement pstmtRes = conn.prepareStatement(sqlRes);
                 pstmtRes.setInt(1, guestID);
                 pstmtRes.setString(2, reservation.getRoomType());
@@ -101,7 +101,7 @@ public class ReservationDAO {
             Connection conn = DBConnection.getInstance().getConnection();
 
             String sql = "SELECT g.guestID, g.name, g.address, g.contactNo, r.reservationID, r.roomType, r.checkInDate, r.checkOutDate " +
-                    "FROM Guest g JOIN Reservation r ON g.guestID = r.guestID " +
+                    "FROM guest g JOIN reservation r ON g.guestID = r.guestID " +
                     "WHERE g.contactNo = ?";
 
             PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -129,16 +129,39 @@ public class ReservationDAO {
         boolean isSuccess = false;
         try {
             Connection conn = DBConnection.getInstance().getConnection();
-            String sql = "INSERT INTO Reservation (guestID, roomType, checkInDate, checkOutDate) VALUES (?, ?, ?, ?)";
+            String sql = "INSERT INTO reservation (guestID, roomType, checkInDate, checkOutDate) VALUES (?, ?, ?, ?)";
 
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, reservation.getGuestID());
+            pstmt.setInt(1, reservation.getGuestId()); // නිවැරදි කළ ස්ථානය
             pstmt.setString(2, reservation.getRoomType());
             pstmt.setString(3, reservation.getCheckInDate());
             pstmt.setString(4, reservation.getCheckOutDate());
 
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {
+                isSuccess = true;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return isSuccess;
+    }
+
+    public boolean addReservation(Reservation res) {
+        boolean isSuccess = false;
+        try {
+            java.sql.Connection conn = com.oceanview.util.DBConnection.getInstance().getConnection();
+            String sql = "INSERT INTO reservation (guestID, roomType, checkInDate, checkOutDate, noOfPersons) VALUES (?, ?, ?, ?, ?)";
+            java.sql.PreparedStatement pstmt = conn.prepareStatement(sql);
+
+            pstmt.setInt(1, res.getGuestId());
+            pstmt.setString(2, res.getRoomType());
+            pstmt.setString(3, res.getCheckInDate());
+            pstmt.setString(4, res.getCheckOutDate());
+            pstmt.setInt(5, res.getNoOfPersons());
+
+            int rows = pstmt.executeUpdate();
+            if (rows > 0) {
                 isSuccess = true;
             }
         } catch (Exception e) {
@@ -158,8 +181,8 @@ public class ReservationDAO {
 
             while (rs.next()) {
                 Reservation r = new Reservation();
-                r.setReservationID(rs.getInt("reservationID"));
-                r.setGuestID(rs.getInt("guestID"));
+                r.setReservationId(rs.getInt("reservationID"));
+                r.setGuestId(rs.getInt("guestID"));
                 r.setRoomType(rs.getString("roomType"));
                 r.setCheckInDate(rs.getString("checkInDate"));
                 r.setCheckOutDate(rs.getString("checkOutDate"));
@@ -197,8 +220,8 @@ public class ReservationDAO {
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 r = new Reservation();
-                r.setReservationID(rs.getInt("reservationID"));
-                r.setGuestID(rs.getInt("guestID"));
+                r.setReservationId(rs.getInt("reservationID"));
+                r.setGuestId(rs.getInt("guestID"));
                 r.setRoomType(rs.getString("roomType"));
                 r.setCheckInDate(rs.getString("checkInDate"));
                 r.setCheckOutDate(rs.getString("checkOutDate"));
@@ -218,7 +241,7 @@ public class ReservationDAO {
             ps.setString(2, r.getCheckInDate());
             ps.setString(3, r.getCheckOutDate());
             ps.setInt(4, r.getNoOfPersons());
-            ps.setInt(5, r.getReservationID());
+            ps.setInt(5, r.getReservationId());
             return ps.executeUpdate() > 0;
         } catch (Exception e) {
             e.printStackTrace();
