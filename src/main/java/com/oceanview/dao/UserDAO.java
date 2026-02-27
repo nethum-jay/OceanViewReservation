@@ -10,7 +10,7 @@ import java.util.List;
 
 public class UserDAO {
 
-    // Checking name and password when logging in
+    // Checking the name and password when the user logs in
     public User authenticateUser(String username, String password) {
         User user = null;
         try {
@@ -37,20 +37,17 @@ public class UserDAO {
     // Registering new users
     public boolean registerUser(User user) {
         boolean isSuccess = false;
-        java.sql.Connection conn = null;
-
         try {
-            conn = DBConnection.getInstance().getConnection();
+            Connection conn = DBConnection.getInstance().getConnection();
             String sql = "INSERT INTO users (username, password, role, phone) VALUES (?, ?, ?, ?)";
-            java.sql.PreparedStatement pstmt = conn.prepareStatement(sql);
+            PreparedStatement pstmt = conn.prepareStatement(sql);
 
             pstmt.setString(1, user.getUsername());
             pstmt.setString(2, user.getPassword());
             pstmt.setString(3, user.getRole());
             pstmt.setString(4, user.getPhone());
 
-            int rowsAffected = pstmt.executeUpdate();
-            if (rowsAffected > 0) {
+            if (pstmt.executeUpdate() > 0) {
                 isSuccess = true;
             }
         } catch (Exception e) {
@@ -60,15 +57,15 @@ public class UserDAO {
         return isSuccess;
     }
 
-    //Getting all the details of the user
+    // Get all the user details by username
     public User getUserByUsername(String username) {
         User user = null;
         try {
-            java.sql.Connection conn = com.oceanview.util.DBConnection.getInstance().getConnection();
+            Connection conn = DBConnection.getInstance().getConnection();
             String sql = "SELECT * FROM users WHERE username = ?";
-            java.sql.PreparedStatement pstmt = conn.prepareStatement(sql);
+            PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, username);
-            java.sql.ResultSet rs = pstmt.executeQuery();
+            ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
                 user = new User();
@@ -80,17 +77,19 @@ public class UserDAO {
                 user.setEmail(rs.getString("email"));
                 user.setAddress(rs.getString("address"));
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return user;
     }
 
-    // Updating all details at once
+    // Customer updates their details themselves
     public boolean updateFullProfile(String oldUname, String newUname, String pass, String phone, String name, String nic, String email, String addr) {
         boolean isSuccess = false;
         try {
-            java.sql.Connection conn = com.oceanview.util.DBConnection.getInstance().getConnection();
+            Connection conn = DBConnection.getInstance().getConnection();
             String sql = "UPDATE users SET username=?, password=?, phone=?, fullName=?, nic=?, email=?, address=? WHERE username=?";
-            java.sql.PreparedStatement pstmt = conn.prepareStatement(sql);
+            PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, newUname);
             pstmt.setString(2, pass);
             pstmt.setString(3, phone);
@@ -101,16 +100,17 @@ public class UserDAO {
             pstmt.setString(8, oldUname);
 
             if (pstmt.executeUpdate() > 0) isSuccess = true;
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return isSuccess;
     }
 
-    // Get all users in the system
+    // Getting a list of all users in the system
     public List<User> getAllUsers() {
         List<User> userList = new ArrayList<>();
         try {
             Connection conn = DBConnection.getInstance().getConnection();
-            // Obtaining only the necessary data
             String sql = "SELECT id, username, role, phone FROM users ORDER BY id ASC";
             PreparedStatement ps = conn.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
@@ -123,11 +123,13 @@ public class UserDAO {
                 user.setPhone(rs.getString("phone") != null ? rs.getString("phone") : "Not Set");
                 userList.add(user);
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return userList;
     }
 
-    // Search for a user by ID
+    // Retrieve all data by ID
     public User getUserById(int id) {
         User user = null;
         try {
@@ -136,19 +138,47 @@ public class UserDAO {
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
+
             if (rs.next()) {
                 user = new User();
                 user.setId(rs.getInt("id"));
                 user.setUsername(rs.getString("username"));
+                user.setPassword(rs.getString("password")); // Password එක ලබා ගැනීම
                 user.setRole(rs.getString("role"));
                 user.setPhone(rs.getString("phone"));
                 user.setFullName(rs.getString("fullName"));
+                user.setNic(rs.getString("nic"));
                 user.setEmail(rs.getString("email"));
                 user.setAddress(rs.getString("address"));
-                user.setNic(rs.getString("nic"));
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return user;
+    }
+
+    // Method for Admin to Update All Data in MySQL Workbench
+    public boolean updateUserDetailsByAdmin(User u) {
+        boolean isSuccess = false;
+        try {
+            Connection conn = DBConnection.getInstance().getConnection();
+            String sql = "UPDATE users SET username=?, password=?, role=?, phone=?, fullName=?, email=?, nic=?, address=? WHERE id=?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setString(1, u.getUsername());
+            pstmt.setString(2, u.getPassword());
+            pstmt.setString(3, u.getRole());
+            pstmt.setString(4, u.getPhone());
+            pstmt.setString(5, u.getFullName());
+            pstmt.setString(6, u.getEmail());
+            pstmt.setString(7, u.getNic());     // අලුත් දත්ත
+            pstmt.setString(8, u.getAddress()); // අලුත් දත්ත
+            pstmt.setInt(9, u.getId());
+
+            if (pstmt.executeUpdate() > 0) isSuccess = true;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return isSuccess;
     }
 
     // Removing a user from the system
@@ -159,29 +189,9 @@ public class UserDAO {
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setInt(1, id);
             return ps.executeUpdate() > 0;
-        } catch (Exception e) { e.printStackTrace(); return false; }
-    }
-
-    // Method for Admin to update user data
-    public boolean updateUserByAdmin(int id, String fullName, String username, String role, String email, String phone) {
-        boolean isSuccess = false;
-        try {
-            java.sql.Connection conn = com.oceanview.util.DBConnection.getInstance().getConnection();
-            String sql = "UPDATE users SET fullName=?, username=?, role=?, email=?, phone=? WHERE id=?";
-            java.sql.PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, fullName);
-            pstmt.setString(2, username);
-            pstmt.setString(3, role);
-            pstmt.setString(4, email);
-            pstmt.setString(5, phone);
-            pstmt.setInt(6, id);
-
-            if (pstmt.executeUpdate() > 0) {
-                isSuccess = true;
-            }
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
-        return isSuccess;
     }
 }

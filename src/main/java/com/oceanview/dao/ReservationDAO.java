@@ -6,10 +6,12 @@ import com.oceanview.util.DBConnection;
 import java.util.Map;
 import java.util.HashMap;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ReservationDAO {
 
-    //The method for finding the number of rooms
+    // The method for finding the number of rooms
     public Map<String, Integer> getAvailableRoomCounts(String checkIn, String checkOut) {
         Map<String, Integer> availableRooms = new HashMap<>();
         availableRooms.put("Single", 10);
@@ -32,11 +34,13 @@ public class ReservationDAO {
                     availableRooms.put(type, availableRooms.get(type) - booked);
                 }
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return availableRooms;
     }
 
-    //Method for saving a booking
+    // Method for saving a booking
     public int addCompleteReservation(Guest guest, Reservation reservation) {
         int guestID = -1;
         Connection conn = null;
@@ -73,11 +77,13 @@ public class ReservationDAO {
                 pstmtRes.setString(2, reservation.getRoomType());
                 pstmtRes.setString(3, reservation.getCheckInDate());
                 pstmtRes.setString(4, reservation.getCheckOutDate());
-                pstmtRes.setInt(5, reservation.getNoOfPersons()); // අලුත් අගය
+                pstmtRes.setInt(5, reservation.getNoOfPersons());
                 pstmtRes.executeUpdate();
 
                 conn.commit();
-            } else { conn.rollback(); }
+            } else {
+                conn.rollback();
+            }
 
         } catch (Exception e) {
             try { if (conn != null) conn.rollback(); } catch (SQLException ex) { ex.printStackTrace(); }
@@ -99,7 +105,7 @@ public class ReservationDAO {
                     "WHERE g.contactNo = ?";
 
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setString(1, contactNo); // String එකක් ලෙස Phone No එක ලබා දීම
+            pstmt.setString(1, contactNo);
             ResultSet rs = pstmt.executeQuery();
 
             if (rs.next()) {
@@ -112,7 +118,9 @@ public class ReservationDAO {
                 details.put("checkInDate", rs.getString("checkInDate"));
                 details.put("checkOutDate", rs.getString("checkOutDate"));
             }
-        } catch (Exception e) { e.printStackTrace(); }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return details.isEmpty() ? null : details;
     }
 
@@ -120,12 +128,10 @@ public class ReservationDAO {
     public boolean bookRoom(Reservation reservation) {
         boolean isSuccess = false;
         try {
-            java.sql.Connection conn = DBConnection.getInstance().getConnection();
-
-            // Entering data into the Reservation table
+            Connection conn = DBConnection.getInstance().getConnection();
             String sql = "INSERT INTO Reservation (guestID, roomType, checkInDate, checkOutDate) VALUES (?, ?, ?, ?)";
 
-            java.sql.PreparedStatement pstmt = conn.prepareStatement(sql);
+            PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setInt(1, reservation.getGuestID());
             pstmt.setString(2, reservation.getRoomType());
             pstmt.setString(3, reservation.getCheckInDate());
@@ -139,5 +145,84 @@ public class ReservationDAO {
             e.printStackTrace();
         }
         return isSuccess;
+    }
+
+    // Method for getting all bookings
+    public List<Reservation> getAllReservations() {
+        List<Reservation> list = new ArrayList<>();
+        try {
+            Connection conn = DBConnection.getInstance().getConnection();
+            String sql = "SELECT * FROM reservation";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Reservation r = new Reservation();
+                r.setReservationID(rs.getInt("reservationID"));
+                r.setGuestID(rs.getInt("guestID"));
+                r.setRoomType(rs.getString("roomType"));
+                r.setCheckInDate(rs.getString("checkInDate"));
+                r.setCheckOutDate(rs.getString("checkOutDate"));
+                r.setNoOfPersons(rs.getInt("noOfPersons"));
+                list.add(r);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    // Delete Booking
+    public boolean deleteReservation(int id) {
+        try {
+            Connection conn = DBConnection.getInstance().getConnection();
+            String sql = "DELETE FROM reservation WHERE reservationID = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Retrieving Edit Form data by ID
+    public Reservation getReservationById(int id) {
+        Reservation r = null;
+        try {
+            Connection conn = DBConnection.getInstance().getConnection();
+            String sql = "SELECT * FROM reservation WHERE reservationID = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                r = new Reservation();
+                r.setReservationID(rs.getInt("reservationID"));
+                r.setGuestID(rs.getInt("guestID"));
+                r.setRoomType(rs.getString("roomType"));
+                r.setCheckInDate(rs.getString("checkInDate"));
+                r.setCheckOutDate(rs.getString("checkOutDate"));
+                r.setNoOfPersons(rs.getInt("noOfPersons"));
+            }
+        } catch (Exception e) { e.printStackTrace(); }
+        return r;
+    }
+
+    // Sending update booking data to the database
+    public boolean updateReservationByAdmin(Reservation r) {
+        try {
+            Connection conn = DBConnection.getInstance().getConnection();
+            String sql = "UPDATE reservation SET roomType=?, checkInDate=?, checkOutDate=?, noOfPersons=? WHERE reservationID=?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, r.getRoomType());
+            ps.setString(2, r.getCheckInDate());
+            ps.setString(3, r.getCheckOutDate());
+            ps.setInt(4, r.getNoOfPersons());
+            ps.setInt(5, r.getReservationID());
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

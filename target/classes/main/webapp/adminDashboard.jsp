@@ -81,11 +81,13 @@
                 <h3>Manage Users</h3>
                 <p>Add, edit or remove users.</p>
             </a>
-            <a href="viewReservations.jsp" class="card">
-                <div class="icon-box"><i class="fa-solid fa-calendar-alt"></i></div>
+
+            <a href="ViewReservationsServlet" class="card">
+                <div class="icon-box"><i class="fa-solid fa-calendar-check"></i></div>
                 <h3>All Bookings</h3>
                 <p>View all system reservations.</p>
             </a>
+
             <a href="reports.jsp" class="card">
                 <div class="icon-box"><i class="fa-solid fa-chart-pie"></i></div>
                 <h3>View Reports</h3>
