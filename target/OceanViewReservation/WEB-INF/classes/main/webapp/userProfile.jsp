@@ -100,7 +100,7 @@
     </div>
 </main>
 <footer>
-        &copy; 2026 Ocean View Resort - Reservation System. All Rights Reserved. <br> Developed for Advanced Programming.
+    &copy; 2026 Ocean View Resort - Reservation System. All Rights Reserved. <br> Developed for Advanced Programming Assignment.
 </footer>
 
 </body>

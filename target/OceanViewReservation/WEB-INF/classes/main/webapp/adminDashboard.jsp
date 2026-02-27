@@ -1,10 +1,10 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
+    // Security measures: Check the session and verify the admin data.
     String loggedUser = (String) session.getAttribute("loggedUser");
     String userRole = (String) session.getAttribute("userRole");
-    Integer userId = (Integer) session.getAttribute("userId");
 
-    // Security Check Admin
+    // Redirect to login page if not admin
     if (userRole == null || !"Admin".equals(userRole)) {
         response.sendRedirect("login.jsp?error=Unauthorized Access!");
         return;
@@ -68,9 +68,6 @@
     <div class="dashboard-wrapper">
         <div class="welcome-header">
             <h2>Welcome back, <span style="text-transform: capitalize; color: var(--secondary);"><%= loggedUser %></span>!</h2>
-            <div class="user-badge" style="background: #eef2f5; color: #333; margin-right: 10px;">
-                <i class="fa-solid fa-id-badge"></i> Your ID: <%= userId %>
-            </div>
             <div class="user-badge"><i class="fa-solid fa-shield"></i> Role: <%= userRole %></div>
             <p style="margin-top: 15px;">System Overview and Management Panel.</p>
         </div>
@@ -88,11 +85,12 @@
                 <p>View all system reservations.</p>
             </a>
 
-            <a href="reports.jsp" class="card">
+            <a href="ViewReportsServlet" class="card">
                 <div class="icon-box"><i class="fa-solid fa-chart-pie"></i></div>
                 <h3>View Reports</h3>
                 <p>Analyze system performance.</p>
             </a>
+
             <a href="settings.jsp" class="card">
                 <div class="icon-box"><i class="fa-solid fa-cogs"></i></div>
                 <h3>System Settings</h3>

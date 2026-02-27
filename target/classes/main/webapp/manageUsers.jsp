@@ -114,7 +114,7 @@
 </main>
 
 <footer style="text-align: center; padding: 20px; color: white; font-size: 12px; margin-top: auto;">
-    &copy; 2026 Ocean View Resort - Security & Management Portal
+    &copy; 2026 Ocean View Resort - Reservation System. All Rights Reserved. <br> Developed for Advanced Programming Assignment.
 </footer>
 
 </body>

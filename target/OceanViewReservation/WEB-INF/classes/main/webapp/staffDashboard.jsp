@@ -2,9 +2,8 @@
 <%
     String loggedUser = (String) session.getAttribute("loggedUser");
     String userRole = (String) session.getAttribute("userRole");
-    Integer userId = (Integer) session.getAttribute("userId");
 
-    // Security Check: Staff
+    // Security Check Staff
     if (userRole == null || !"Staff".equals(userRole)) {
         response.sendRedirect("login.jsp?error=Unauthorized Access!");
         return;
@@ -18,7 +17,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* CSS Admin Dashboard එකට සමානයි (ඒකාකාරී පෙනුම සඳහා) */
         :root { --primary: #005f73; --secondary: #0a9396; --accent: #94d2bd; --text-dark: #1a1a1a; --text-muted: #555; --white: #ffffff; --danger: #e63946; }
         body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background: url('https://images.unsplash.com/photo-1618140052121-39fc6db33972?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed; background-size: cover; color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; }
         .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.4); z-index: -1; }
@@ -69,9 +67,6 @@
     <div class="dashboard-wrapper">
         <div class="welcome-header">
             <h2>Welcome back, <span style="text-transform: capitalize; color: var(--secondary);"><%= loggedUser %></span>!</h2>
-            <div class="user-badge" style="background: #eef2f5; color: #333; margin-right: 10px;">
-                <i class="fa-solid fa-id-badge"></i> Your ID: <%= userId %>
-            </div>
             <div class="user-badge"><i class="fa-solid fa-clipboard-user"></i> Role: <%= userRole %></div>
             <p style="margin-top: 15px;">Manage daily resort operations and guest services.</p>
         </div>

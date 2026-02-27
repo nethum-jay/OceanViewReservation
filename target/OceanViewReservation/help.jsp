@@ -1,4 +1,21 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%
+    // Getting the Role of the user logged in to the system
+    String userRole = (String) session.getAttribute("userRole");
+
+    // Providing the Customer Dashboard by default
+    String dashboardLink = "customerDashboard.jsp";
+
+    // Determining the page to return to based on the role
+    if ("Admin".equals(userRole)) {
+        dashboardLink = "adminDashboard.jsp";
+    } else if ("Staff".equals(userRole)) {
+        dashboardLink = "staffDashboard.jsp";
+    } else if (userRole == null) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
+%>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -91,52 +108,53 @@
         <img src="https://cdn-icons-png.flaticon.com/512/3009/3009489.png" alt="Logo">
         <h1>Ocean View Resort</h1>
     </div>
-    <a href="customerDashboard.jsp" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a>
+    <a href="<%= dashboardLink %>" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a>
 </header>
 
 <main>
     <div class="help-container">
-        <h2><i class="fa-solid fa-circle-info"></i> Staff User Guidelines</h2>
-        <p class="intro">Welcome to the Ocean View Resort Reservation System. This guide provides step-by-step instructions for new staff members to navigate and manage bookings effectively.</p>
+        <h2><i class="fa-solid fa-circle-info"></i> System User Guidelines</h2>
+        <p class="intro">Welcome to the Ocean View Resort Reservation System. This guide provides step-by-step instructions to navigate and manage bookings effectively.</p>
 
         <div class="guide-card">
             <h3><i class="fa-solid fa-shield-halved"></i> 1. System Access (Login)</h3>
-            <p>All staff members must log in to access the system securely.</p>
+            <p>All users must log in to access the system securely.</p>
             <ul>
-                <li>Navigate to the <b>Login Page</b> (`login.jsp`).</li>
+                <li>Navigate to the <b>Login Page</b>.</li>
                 <li>Enter your assigned <b>Username</b> and <b>Password</b>.</li>
-                <li>Do not share your credentials with unauthorized personnel.</li>
+                <li>Ensure you do not share your credentials with unauthorized personnel.</li>
             </ul>
         </div>
 
         <div class="guide-card">
-            <h3><i class="fa-solid fa-calendar-plus"></i> 2. Adding a New Reservation</h3>
-            <p>Use this section when a new guest wishes to book a room.</p>
+            <h3><i class="fa-solid fa-calendar-plus"></i> 2. Managing Reservations</h3>
+            <p>Use the booking module to create new reservations.</p>
             <ul>
-                <li>Go to the <b>Add Reservation</b> module (`addReservation.jsp`).</li>
-                <li>Fill in the <b>Guest Details</b> (Name, Address, Contact Number).</li>
-                <li>Select the <b>Room Type</b> and enter the <b>Check-in / Check-out dates</b>.</li>
-                <li>Click <b>Save Complete Reservation</b>. The system will auto-generate a Guest ID.</li>
+                <li>Go to the <b>New Reservation</b> module.</li>
+                <li>Fill in the Guest Details (Name, NIC, Contact Number).</li>
+                <li>Select the Room Type and enter Check-in / Check-out dates.</li>
+                <li>Click Save. The system will auto-generate the booking ID.</li>
             </ul>
         </div>
 
         <div class="guide-card">
-            <h3><i class="fa-solid fa-magnifying-glass"></i> 3. Display Reservation Details</h3>
-            <p>Use this feature to search for an existing booking.</p>
+            <h3><i class="fa-solid fa-magnifying-glass"></i> 3. Displaying Booking Details</h3>
+            <p>Use this feature to search for an existing booking in the system.</p>
             <ul>
-                <li>Navigate to the <b>Display Reservation</b> page (`viewReservation.jsp`).</li>
-                <li>Enter the guest's <b>Guest ID</b> in the search box.</li>
-                <li>Click <b>Search</b> to view full details including room type and dates.</li>
+                <li>Navigate to the <b>Check-in / Out</b> page.</li>
+                <li>Enter the guest's <b>Phone Number</b> in the search box.</li>
+                <li>Click <b>Search</b> to view full details securely from the database.</li>
             </ul>
         </div>
 
         <div class="guide-card">
-            <h3><i class="fa-solid fa-file-invoice-dollar"></i> 4. Calculate and Print Bill</h3>
-            <p>Generate an official invoice when a guest is checking out.</p>
+            <h3><i class="fa-solid fa-file-invoice-dollar"></i> 4. Generating the Invoice</h3>
+            <p>Generate an official bill when a guest is checking out.</p>
             <ul>
-                <li>Go to the <b>Billing Section</b> (`printBill.jsp`) and search using the Guest ID.</li>
-                <li>The system will automatically compute the <b>Number of Nights</b> and the <b>Total Cost</b> based on our standard room rates.</li>
-                <li>Click the <b>Print Official Invoice</b> button to hand over a physical copy to the guest.</li>
+                <li>Go to the <b>Print Bills</b> section.</li>
+                <li>Search using the guest's contact number.</li>
+                <li>The system will automatically calculate the total cost, including a 10% service charge.</li>
+                <li>Click the <b>Print Invoice</b> button to save or hand over a copy to the guest.</li>
             </ul>
         </div>
     </div>

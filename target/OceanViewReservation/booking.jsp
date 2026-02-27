@@ -87,7 +87,7 @@
         <img src="https://cdn-icons-png.flaticon.com/512/3009/3009489.png" alt="Ocean View Logo">
         <h1>Ocean View Resort</h1>
     </a>
-    <a href="<%= dashboardLink %>" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Dashboard</a>
+    <a href="<%= dashboardLink %>" class="back-btn"><i class="fa-solid fa-arrow-left"></i> Back to Dashboard</a>
 </header>
 <main>
     <div class="form-wrapper">
@@ -202,7 +202,9 @@
         </div>
     </div>
 </main>
-<footer>&copy; 2026 Ocean View Resort - Developed for CIS6003.</footer>
+<footer>
+    &copy; 2026 Ocean View Resort - Reservation System. All Rights Reserved. <br> Developed for Advanced Programming Assignment.
+</footer>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
