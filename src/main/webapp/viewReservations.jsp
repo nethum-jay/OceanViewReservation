@@ -9,6 +9,9 @@
     }
 
     String dashboardLink = role.equals("Admin") ? "adminDashboard.jsp" : "staffDashboard.jsp";
+
+    // Check if the current user is an Admin (to show/hide Edit button)
+    boolean isAdmin = "Admin".equals(role);
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -33,17 +36,17 @@
         .container { flex: 1; padding: 40px; display: flex; justify-content: center; animation: fadeIn 0.8s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        .table-card { background: rgba(255, 255, 255, 0.95); padding: 35px; border-radius: 20px; width: 100%; max-width: 1050px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
+        .table-card { background: rgba(255, 255, 255, 0.95); padding: 35px; border-radius: 20px; width: 100%; max-width: 950px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); }
         .table-card h2 { color: var(--primary); margin: 0 0 20px 0; font-size: 20px; display: flex; align-items: center; gap: 10px; }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: 12px; overflow: hidden; }
-        th { background: var(--primary); color: white; padding: 15px; text-align: left; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
-        td { padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; color: var(--text-dark); }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        th { background: var(--primary); color: white; padding: 18px 15px; text-align: left; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+        td { padding: 18px 15px; border-bottom: 1px solid #eee; font-size: 15px; color: var(--text-dark); }
         tr:hover { background: #f8fbff; }
 
-        .room-badge { background: #e0fbfc; color: var(--primary); padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; border: 1px solid var(--secondary); display: inline-block; }
+        .room-badge { background: #e0fbfc; color: var(--primary); padding: 6px 15px; border-radius: 20px; font-size: 13px; font-weight: 600; border: 1px solid var(--secondary); display: inline-block; }
 
-        .action-links a { font-size: 18px; transition: 0.3s; margin: 0 8px; text-decoration: none; }
+        .action-links a { font-size: 18px; transition: 0.3s; margin: 0 10px; text-decoration: none; }
         .action-links a:hover { transform: scale(1.2); }
 
         .alert { padding: 15px 20px; margin-bottom: 20px; border-radius: 8px; font-size: 14px; font-weight: 500; display: flex; align-items: center; gap: 10px; }
@@ -78,12 +81,10 @@
         <table>
             <thead>
             <tr>
-                <th>Res. ID</th>
-                <th>Guest ID</th>
+                <th>Booking ID</th>
                 <th>Room Type</th>
                 <th>Check-in Date</th>
                 <th>Check-out Date</th>
-                <th style="text-align: center;">Persons</th>
                 <th style="text-align: center;">Actions</th>
             </tr>
             </thead>
@@ -94,17 +95,19 @@
                     for (Reservation r : resList) {
             %>
             <tr>
-                <td style="font-weight: 600; color: var(--primary);">#<%= r.getReservationId() %></td>
-                <td>G-<%= r.getGuestId() %></td>
+                <td style="font-weight: 700; color: var(--primary); font-size: 16px;">#<%= r.getReservationId() %></td>
                 <td><span class="room-badge"><%= r.getRoomType() %></span></td>
-                <td><i class="fa-regular fa-calendar-plus" style="color: var(--secondary);"></i> <%= r.getCheckInDate() %></td>
-                <td><i class="fa-regular fa-calendar-minus" style="color: var(--danger);"></i> <%= r.getCheckOutDate() %></td>
-                <td style="text-align: center;"><%= (r.getNoOfPersons() == 0) ? "-" : r.getNoOfPersons() %></td>
+                <td><i class="fa-regular fa-calendar-plus" style="color: var(--secondary); margin-right: 5px;"></i> <%= r.getCheckInDate() %></td>
+                <td><i class="fa-regular fa-calendar-minus" style="color: var(--danger); margin-right: 5px;"></i> <%= r.getCheckOutDate() %></td>
 
                 <td style="text-align: center;" class="action-links">
+
+                    <% if(isAdmin) { %>
                     <a href="LoadReservationForEditServlet?id=<%= r.getReservationId() %>" title="Edit Booking" style="color: var(--primary);">
                         <i class="fa-solid fa-pen-to-square"></i>
                     </a>
+                    <% } %>
+
                     <a href="DeleteReservationServlet?id=<%= r.getReservationId() %>" onclick="return confirm('Are you sure you want to cancel and delete this booking?');" title="Delete Booking" style="color: var(--danger);">
                         <i class="fa-solid fa-trash-can"></i>
                     </a>
@@ -113,8 +116,8 @@
             <%      }
             } else { %>
             <tr>
-                <td colspan="7" style="text-align: center; padding: 30px; color: #888;">
-                    <i class="fa-solid fa-folder-open" style="font-size: 24px; display: block; margin-bottom: 10px;"></i>
+                <td colspan="5" style="text-align: center; padding: 40px; color: #888;">
+                    <i class="fa-solid fa-folder-open" style="font-size: 28px; display: block; margin-bottom: 15px; color: #ccc;"></i>
                     No reservations found in the system.
                 </td>
             </tr>

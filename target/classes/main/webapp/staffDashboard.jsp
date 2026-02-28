@@ -30,12 +30,18 @@
         .logout-btn:hover { background: #d90429; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(230,57,70,0.4); }
         main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; animation: fadeIn 0.8s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .dashboard-wrapper { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); padding: 40px; border-radius: 20px; width: 100%; max-width: 900px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.6); }
+
+        /* Dashboard Wrapper පළල මඳක් වැඩි කර ඇත කාඩ් 4 ලස්සනට පෙන්වීමට */
+        .dashboard-wrapper { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); padding: 40px; border-radius: 20px; width: 100%; max-width: 1000px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.6); }
+
         .welcome-header { text-align: center; margin-bottom: 40px; }
         .welcome-header h2 { color: var(--primary); font-size: 32px; font-weight: 700; margin-bottom: 8px; margin-top: 0; }
         .welcome-header p { color: var(--text-muted); font-size: 15px; margin: 0; }
         .user-badge { display: inline-block; background: #e0fbfc; color: var(--primary); padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: 600; margin-top: 10px; border: 1px solid var(--secondary); }
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; justify-content: center; }
+
+        /* Grid එක Cards 4ක් සඳහා සකස් කර ඇත */
+        .grid-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; justify-content: center; }
+
         .card { background: var(--white); padding: 30px 15px; border-radius: 16px; text-align: center; text-decoration: none; color: var(--text-dark); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid #eef2f5; box-shadow: 0 5px 15px rgba(0,0,0,0.04); display: flex; flex-direction: column; align-items: center; }
         .card:hover { transform: translateY(-8px); box-shadow: 0 15px 30px rgba(0,95,115,0.15); border-color: var(--accent); }
         .icon-box { width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: var(--white); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 24px; margin-bottom: 15px; transition: 0.4s; box-shadow: 0 8px 20px rgba(10,147,150,0.3); }
@@ -43,6 +49,10 @@
         .card h3 { font-size: 16px; font-weight: 600; margin-bottom: 10px; margin-top: 0; }
         .card p { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin: 0; }
         footer { text-align: center; padding: 20px; color: rgba(255,255,255,0.9); font-size: 13px; backdrop-filter: blur(8px); background: rgba(0,0,0,0.6); margin-top: auto; }
+
+        @media (max-width: 900px) {
+            .grid-container { grid-template-columns: repeat(2, 1fr); }
+        }
     </style>
 </head>
 <body>
@@ -77,15 +87,23 @@
                 <h3>New Reservation</h3>
                 <p>Register guests & book rooms.</p>
             </a>
+
             <a href="viewReservation.jsp" class="card">
-                <div class="icon-box"><i class="fa-solid fa-clipboard-check"></i></div>
-                <h3>Check-in / Out</h3>
-                <p>Manage daily operations.</p>
+                <div class="icon-box"><i class="fa-solid fa-magnifying-glass"></i></div>
+                <h3>Search Guest</h3>
+                <p>Find check-in details.</p>
             </a>
-            <a href="printBill.jsp" class="card">
+
+            <a href="ViewReservationsServlet" class="card">
+                <div class="icon-box"><i class="fa-solid fa-calendar-check"></i></div>
+                <h3>All Bookings</h3>
+                <p>View all system reservations.</p>
+            </a>
+
+            <a href="searchBooking.jsp" class="card">
                 <div class="icon-box"><i class="fa-solid fa-file-invoice-dollar"></i></div>
-                <h3>Print Bills</h3>
-                <p>Generate customer invoices.</p>
+                <h3>Print Bill</h3>
+                <p>Search & print invoices.</p>
             </a>
         </div>
     </div>

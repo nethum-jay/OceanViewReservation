@@ -2,6 +2,7 @@ package com.oceanview.controller;
 
 import com.oceanview.dao.ReservationDAO;
 import com.oceanview.model.Reservation;
+
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
@@ -12,11 +13,21 @@ import java.util.List;
 
 @WebServlet("/ViewReservationsServlet")
 public class ViewReservationsServlet extends HttpServlet {
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        ReservationDAO dao = new ReservationDAO();
-        List<Reservation> list = dao.getAllReservations();
 
-        request.setAttribute("reservationList", list);
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        try {
+            ReservationDAO dao = new ReservationDAO();
+            List<Reservation> resList = dao.getAllReservations();
+            request.setAttribute("reservationList", resList);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         request.getRequestDispatcher("viewReservations.jsp").forward(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doGet(request, response);
     }
 }

@@ -76,7 +76,7 @@
             <label>Username</label>
             <div class="input-container">
                 <i class="fa-solid fa-user"></i>
-                <input type="text" name="username" placeholder="Enter your username" required oninput="capitalizeFirstLetter(this)">
+                <input type="text" name="username" placeholder="Enter your username" required>
             </div>
         </div>
 
@@ -98,13 +98,4 @@
     </div>
 </div>
 </body>
-
-<script>
-    function capitalizeFirstLetter(inputField) {
-        let text = inputField.value;
-        if (text.length > 0) {
-            inputField.value = text.charAt(0).toUpperCase() + text.slice(1);
-        }
-    }
-</script>
 </html>

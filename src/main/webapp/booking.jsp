@@ -73,16 +73,10 @@
         .stat-box .count { font-size: 16px; font-weight: 700; color: var(--primary); margin-top: 5px; }
 
         /* Price Badge in Availability Panel */
-        .price-badge {
-            background: var(--primary); color: white; font-size: 10px; padding: 2px 8px;
-            border-radius: 10px; margin-top: 5px; font-weight: 500;
-        }
+        .price-badge { background: var(--primary); color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; margin-top: 5px; font-weight: 500; }
 
         /* Dynamic Price Display under Dropdown */
-        .price-display {
-            font-size: 13px; color: var(--secondary); font-weight: 600; margin-top: 5px; margin-left: 5px;
-            display: flex; align-items: center; gap: 5px; opacity: 0; transition: opacity 0.3s ease;
-        }
+        .price-display { font-size: 13px; color: var(--secondary); font-weight: 600; margin-top: 5px; margin-left: 5px; display: flex; align-items: center; gap: 5px; opacity: 0; transition: opacity 0.3s ease; }
         .price-display.visible { opacity: 1; }
         .price-value { color: #e63946; font-size: 15px; font-weight: 700; }
     </style>
@@ -135,7 +129,12 @@
             </div>
 
             <% if(request.getAttribute("successMessage") != null) { %>
-            <div class="alert success"><i class="fa-solid fa-circle-check"></i> <%= request.getAttribute("successMessage") %></div>
+            <div class="alert success" style="flex-direction: column; align-items: flex-start;">
+                <div><i class="fa-solid fa-circle-check"></i> <%= request.getAttribute("successMessage") %></div>
+                <% if(request.getAttribute("generatedResId") != null) { %>
+                <a href="SearchBookingServlet?bookingId=<%= request.getAttribute("generatedResId") %>" style="margin-top: 12px; display: inline-block; background: var(--primary); color: white; padding: 8px 20px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.1);"><i class="fa-solid fa-file-invoice"></i> View / Print Bill</a>
+                <% } %>
+            </div>
             <% } else if(request.getAttribute("errorMessage") != null) { %>
             <div class="alert error"><i class="fa-solid fa-circle-exclamation"></i> <%= request.getAttribute("errorMessage") %></div>
             <% } %>
@@ -146,32 +145,28 @@
                     <div class="input-group full-width">
                         <label>Full Name</label>
                         <i class="fa-solid fa-user input-icon"></i>
-                        <input type="text" name="guestName" placeholder="Enter Full Name"
-                               value="<%= (u != null && u.getFullName() != null) ? u.getFullName() : "" %>" required>
+                        <input type="text" name="guestName" placeholder="Enter Full Name" required>
                     </div>
                     <div class="input-group">
                         <label>NIC / Passport Number</label>
                         <i class="fa-solid fa-id-card input-icon"></i>
-                        <input type="text" name="nic" placeholder="Enter NIC or Passport"
-                               value="<%= (u != null && u.getNic() != null) ? u.getNic() : "" %>" required>
+                        <input type="text" name="nic" placeholder="Enter NIC or Passport" required>
                     </div>
                     <div class="input-group">
                         <label>Email Address</label>
                         <i class="fa-solid fa-envelope input-icon"></i>
-                        <input type="email" name="email" placeholder="john@example.com"
-                               value="<%= (u != null && u.getEmail() != null) ? u.getEmail() : "" %>" required>
+                        <input type="email" name="email" placeholder="john@example.com" required>
                     </div>
                     <div class="input-group full-width">
                         <label>Residential Address</label>
                         <i class="fa-solid fa-map-location-dot input-icon"></i>
-                        <input type="text" name="address" placeholder="Enter full address"
-                               value="<%= (u != null && u.getAddress() != null) ? u.getAddress() : "" %>" required>
+                        <input type="text" name="address" placeholder="Enter full address" required>
                     </div>
                     <div class="input-group">
                         <label>Contact Number</label>
                         <i class="fa-solid fa-phone input-icon"></i>
                         <input type="tel" name="contactNo" placeholder="07XXXXXXXX" pattern="[0-9]{10}"
-                               value="<%= (u != null && u.getPhone() != null) ? u.getPhone() : "" %>" required>
+                               value="<%= (u != null && u.getPhone() != null && !u.getPhone().equals("null")) ? u.getPhone() : "" %>" required>
                     </div>
                 </div>
 

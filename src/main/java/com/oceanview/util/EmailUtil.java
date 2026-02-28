@@ -6,8 +6,7 @@ import javax.mail.internet.*;
 
 public class EmailUtil {
 
-    // The total cost is now being sent to the email.
-    public static void sendBookingEmail(String toEmail, String guestName, String roomType, String checkIn, String checkOut, int persons, double totalCost) {
+    public static void sendBookingEmail(int bookingId, String toEmail, String guestName, String roomType, String checkIn, String checkOut, int persons, double totalCost) {
 
         final String fromEmail = "njayanuka189@gmail.com";
         final String password = "zwxb slaz njgr posc";
@@ -28,7 +27,7 @@ public class EmailUtil {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(fromEmail));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
-            message.setSubject("Booking Confirmation & Invoice - Ocean View Resort");
+            message.setSubject("Booking Confirmation #" + bookingId + " - Ocean View Resort");
 
             // Creating an HTML E-Bill
             String htmlContent =
@@ -42,6 +41,10 @@ public class EmailUtil {
                             "<div style='padding: 20px;'>" +
                             "<p>Dear <strong>" + guestName + "</strong>,</p>" +
                             "<p>Thank you for choosing Ocean View Resort! Your reservation has been confirmed. Below is your booking summary and invoice.</p>" +
+
+                            "<div style='background-color: #f4f7f6; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; border: 1px dashed #0a9396;'>" +
+                            "<h3 style='margin: 0; color: #005f73;'>Booking ID: #" + bookingId + "</h3>" +
+                            "</div>" +
 
                             "<table style='width: 100%; border-collapse: collapse; margin-top: 20px;'>" +
                             "<tr style='background-color: #f2f2f2;'>" +
@@ -70,7 +73,7 @@ public class EmailUtil {
                             "</tr>" +
                             "</table>" +
 
-                            "<p style='margin-top: 20px; font-size: 12px; color: #666;'>* Please present this email upon arrival.</p>" +
+                            "<p style='margin-top: 20px; font-size: 12px; color: #666;'>* Please present this email and your Booking ID upon arrival.</p>" +
                             "</div>" +
                             "<div style='background-color: #f9f9f9; padding: 15px; text-align: center; font-size: 12px; color: #888;'>" +
                             "Ocean View Resort, Malabe | Tel: +94 11 234 5678" +

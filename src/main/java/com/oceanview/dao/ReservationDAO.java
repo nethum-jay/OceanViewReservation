@@ -147,12 +147,13 @@ public class ReservationDAO {
         return isSuccess;
     }
 
-    public boolean addReservation(Reservation res) {
-        boolean isSuccess = false;
+    // Adding a new reservation and returning its Booking ID
+    public int addReservation(Reservation res) {
+        int generatedId = -1;
         try {
-            java.sql.Connection conn = com.oceanview.util.DBConnection.getInstance().getConnection();
+            Connection conn = DBConnection.getInstance().getConnection();
             String sql = "INSERT INTO reservation (guestID, roomType, checkInDate, checkOutDate, noOfPersons) VALUES (?, ?, ?, ?, ?)";
-            java.sql.PreparedStatement pstmt = conn.prepareStatement(sql);
+            PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
 
             pstmt.setInt(1, res.getGuestId());
             pstmt.setString(2, res.getRoomType());
@@ -162,12 +163,46 @@ public class ReservationDAO {
 
             int rows = pstmt.executeUpdate();
             if (rows > 0) {
-                isSuccess = true;
+                ResultSet rs = pstmt.getGeneratedKeys();
+                if (rs.next()) {
+                    generatedId = rs.getInt(1);
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return isSuccess;
+        return generatedId;
+    }
+
+    // Finding all the details needed for the bill using the Booking ID
+    public Map<String, String> getReservationDetailsById(int resId) {
+        Map<String, String> details = new HashMap<>();
+        try {
+            Connection conn = DBConnection.getInstance().getConnection();
+            String sql = "SELECT g.guestID, g.name, g.address, g.contactNo, g.nic, g.email, r.reservationID, r.roomType, r.checkInDate, r.checkOutDate, r.noOfPersons " +
+                    "FROM guest g JOIN reservation r ON g.guestID = r.guestID " +
+                    "WHERE r.reservationID = ?";
+            PreparedStatement pstmt = conn.prepareStatement(sql);
+            pstmt.setInt(1, resId);
+            ResultSet rs = pstmt.executeQuery();
+
+            if (rs.next()) {
+                details.put("guestID", String.valueOf(rs.getInt("guestID")));
+                details.put("name", rs.getString("name"));
+                details.put("address", rs.getString("address"));
+                details.put("contactNo", rs.getString("contactNo"));
+                details.put("nic", rs.getString("nic"));
+                details.put("email", rs.getString("email"));
+                details.put("reservationID", String.valueOf(rs.getInt("reservationID")));
+                details.put("roomType", rs.getString("roomType"));
+                details.put("checkInDate", rs.getString("checkInDate"));
+                details.put("checkOutDate", rs.getString("checkOutDate"));
+                details.put("noOfPersons", String.valueOf(rs.getInt("noOfPersons")));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return details.isEmpty() ? null : details;
     }
 
     // Method for getting all bookings

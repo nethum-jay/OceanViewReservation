@@ -77,11 +77,19 @@
                 <h3>Book Room</h3>
                 <p>Book a room for yourself.</p>
             </a>
+
             <a href="viewReservation.jsp" class="card">
                 <div class="icon-box"><i class="fa-solid fa-suitcase"></i></div>
                 <h3>My Bookings</h3>
                 <p>Search & manage bookings.</p>
             </a>
+
+            <a href="searchBooking.jsp" class="card">
+                <div class="icon-box"><i class="fa-solid fa-file-invoice-dollar"></i></div>
+                <h3>Print Bill</h3>
+                <p>Search & print your invoice.</p>
+            </a>
+
             <a href="help.jsp" class="card">
                 <div class="icon-box"><i class="fa-solid fa-headset"></i></div>
                 <h3>Help & Support</h3>

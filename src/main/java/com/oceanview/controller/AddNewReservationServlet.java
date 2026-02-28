@@ -20,20 +20,18 @@ public class AddNewReservationServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         try {
-            // Retrieving data from the "Guest Details" section of the JSP
             String name = request.getParameter("guestName");
             String nic = request.getParameter("nic");
             String email = request.getParameter("email");
             String address = request.getParameter("address");
             String contactNo = request.getParameter("contactNo");
 
-            // Retrieving data from the "Reservation Details" section of the JSP
             String roomType = request.getParameter("roomType");
             int noOfPersons = Integer.parseInt(request.getParameter("noOfPersons"));
             String checkInDate = request.getParameter("checkInDate");
             String checkOutDate = request.getParameter("checkOutDate");
 
-            // Calculating the total amount (Bill Amount)
+            // Calculate price
             double ratePerNight = 0;
             if ("Single".equalsIgnoreCase(roomType)) ratePerNight = 10000.00;
             else if ("Double".equalsIgnoreCase(roomType)) ratePerNight = 15000.00;
@@ -44,14 +42,11 @@ public class AddNewReservationServlet extends HttpServlet {
             LocalDate d2 = LocalDate.parse(checkOutDate);
             long nights = ChronoUnit.DAYS.between(d1, d2);
             if (nights <= 0) nights = 1;
-
             double totalCost = nights * ratePerNight;
 
-            // First, send the Guest's data to the 'guest' table and get his ID.
             GuestDAO guestDAO = new GuestDAO();
             int guestId = guestDAO.saveOrUpdateGuest(name, nic, email, address, contactNo);
 
-            // Only send data to the 'reservation' table if the Guest ID is successfully received.
             if (guestId > 0) {
                 Reservation res = new Reservation();
                 res.setGuestId(guestId);
@@ -61,26 +56,23 @@ public class AddNewReservationServlet extends HttpServlet {
                 res.setCheckOutDate(checkOutDate);
 
                 ReservationDAO resDAO = new ReservationDAO();
-                boolean isBooked = resDAO.addReservation(res);
+                int generatedResId = resDAO.addReservation(res);
 
-                if (isBooked) {
-                    // Sending an email if the reservation is successful (via EmailUtil)
-                    EmailUtil.sendBookingEmail(email, name, roomType, checkInDate, checkOutDate, noOfPersons, totalCost);
+                if (generatedResId > 0) {
+                    EmailUtil.sendBookingEmail(generatedResId, email, name, roomType, checkInDate, checkOutDate, noOfPersons, totalCost);
 
-                    request.setAttribute("successMessage", "Reservation confirmed successfully! Digital Invoice sent to " + email);
+                    request.setAttribute("successMessage", "Reservation confirmed! Your Booking ID is: #" + generatedResId);
+                    request.setAttribute("generatedResId", generatedResId);
                 } else {
-                    request.setAttribute("errorMessage", "Failed to confirm reservation. Room might not be available.");
+                    request.setAttribute("errorMessage", "Failed to confirm reservation.");
                 }
             } else {
-                request.setAttribute("errorMessage", "Failed to save Guest Details in the database.");
+                request.setAttribute("errorMessage", "Failed to save Guest Details.");
             }
-
         } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("errorMessage", "Error: " + e.getMessage());
         }
-
-        // Redirect to the Booking page
         request.getRequestDispatcher("booking.jsp").forward(request, response);
     }
 }
