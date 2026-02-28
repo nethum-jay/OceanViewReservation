@@ -56,7 +56,7 @@ public class UserDAO {
         return isSuccess;
     }
 
-    // Retrieving user information by username (to update profile)
+    // Retrieving user information by username
     public User getUserByUsername(String username) {
         User user = null;
         try {
@@ -82,67 +82,6 @@ public class UserDAO {
         return user;
     }
 
-    // User can update their own data
-    public boolean updateFullProfile(String oldUname, String newUname, String pass, String phone, String name, String nic, String email, String addr) {
-        boolean isSuccess = false;
-        Connection conn = null;
-        try {
-            conn = DBConnection.getInstance().getConnection();
-            // Let's disable AutoCommit since we are updating two data tables
-            conn.setAutoCommit(false);
-
-            // Retrieving the old phone number from the database
-            String oldPhone = null;
-            String getPhoneSql = "SELECT phone FROM users WHERE username=?";
-            PreparedStatement psGetPhone = conn.prepareStatement(getPhoneSql);
-            psGetPhone.setString(1, oldUname);
-            ResultSet rsPhone = psGetPhone.executeQuery();
-            if (rsPhone.next()) {
-                oldPhone = rsPhone.getString("phone");
-            }
-
-            // පියවර B: 'users' වගුව අලුත් දත්ත වලින් යාවත්කාලීන කිරීම
-            String sqlUsers = "UPDATE users SET username=?, password=?, phone=?, fullName=?, nic=?, email=?, address=? WHERE username=?";
-            PreparedStatement psUsers = conn.prepareStatement(sqlUsers);
-            psUsers.setString(1, newUname);
-            psUsers.setString(2, pass);
-            psUsers.setString(3, phone);
-            psUsers.setString(4, name);
-            psUsers.setString(5, nic);
-            psUsers.setString(6, email);
-            psUsers.setString(7, addr);
-            psUsers.setString(8, oldUname);
-            int usersUpdated = psUsers.executeUpdate();
-
-            if (oldPhone != null && !oldPhone.trim().isEmpty()) {
-                String sqlGuest = "UPDATE guest SET name=?, nic=?, email=?, address=?, contactNo=? WHERE contactNo=?";
-                PreparedStatement psGuest = conn.prepareStatement(sqlGuest);
-                psGuest.setString(1, name);
-                psGuest.setString(2, nic);
-                psGuest.setString(3, email);
-                psGuest.setString(4, addr);
-                psGuest.setString(5, phone);    // අලුත් දුරකථන අංකය
-                psGuest.setString(6, oldPhone); // පැරණි දුරකථන අංකය
-                psGuest.executeUpdate();
-            }
-
-            // පියවරයන් සාර්ථක නම් Commit කිරීම
-            if (usersUpdated > 0) {
-                conn.commit();
-                isSuccess = true;
-            } else {
-                conn.rollback();
-            }
-
-        } catch (Exception e) {
-            try { if (conn != null) conn.rollback(); } catch (Exception ex) { ex.printStackTrace(); }
-            e.printStackTrace();
-        } finally {
-            try { if (conn != null) conn.setAutoCommit(true); } catch (Exception ex) { ex.printStackTrace(); }
-        }
-        return isSuccess;
-    }
-
     // Getting a list of all users in the system (for Admin)
     public List<User> getAllUsers() {
         List<User> userList = new ArrayList<>();
@@ -166,7 +105,7 @@ public class UserDAO {
         return userList;
     }
 
-    // Retrieving user information by ID
+    // 5. Retrieving user information by ID
     public User getUserById(int id) {
         User user = null;
         try {
@@ -197,10 +136,24 @@ public class UserDAO {
     // Updating user data by Admin
     public boolean updateUserDetailsByAdmin(User u) {
         boolean isSuccess = false;
+        Connection conn = null;
         try {
-            Connection conn = DBConnection.getInstance().getConnection();
-            String sql = "UPDATE users SET username=?, password=?, role=?, phone=?, fullName=?, email=?, nic=?, address=? WHERE id=?";
-            PreparedStatement pstmt = conn.prepareStatement(sql);
+            conn = DBConnection.getInstance().getConnection();
+            conn.setAutoCommit(false);
+
+            // To find the user's old phone number from the guest table
+            String oldPhone = null;
+            String getPhoneSql = "SELECT phone FROM users WHERE id=?";
+            PreparedStatement psGetPhone = conn.prepareStatement(getPhoneSql);
+            psGetPhone.setInt(1, u.getId());
+            ResultSet rsPhone = psGetPhone.executeQuery();
+            if (rsPhone.next()) {
+                oldPhone = rsPhone.getString("phone");
+            }
+
+            // Updating the 'users' table
+            String sqlUsers = "UPDATE users SET username=?, password=?, role=?, phone=?, fullName=?, email=?, nic=?, address=? WHERE id=?";
+            PreparedStatement pstmt = conn.prepareStatement(sqlUsers);
             pstmt.setString(1, u.getUsername());
             pstmt.setString(2, u.getPassword());
             pstmt.setString(3, u.getRole());
@@ -210,10 +163,34 @@ public class UserDAO {
             pstmt.setString(7, u.getNic());
             pstmt.setString(8, u.getAddress());
             pstmt.setInt(9, u.getId());
+            int usersUpdated = pstmt.executeUpdate();
 
-            if (pstmt.executeUpdate() > 0) isSuccess = true;
+            // If the person in question exists in the 'guest' table, update it
+            if (oldPhone != null && !oldPhone.trim().isEmpty()) {
+                String sqlGuest = "UPDATE guest SET name=?, nic=?, email=?, address=?, contactNo=? WHERE contactNo=?";
+                PreparedStatement psGuest = conn.prepareStatement(sqlGuest);
+                psGuest.setString(1, u.getFullName());
+                psGuest.setString(2, u.getNic());
+                psGuest.setString(3, u.getEmail());
+                psGuest.setString(4, u.getAddress());
+                psGuest.setString(5, u.getPhone());
+                psGuest.setString(6, oldPhone);
+                psGuest.executeUpdate();
+            }
+
+            // If everything is successful, save the data commit.
+            if (usersUpdated > 0) {
+                conn.commit();
+                isSuccess = true;
+            } else {
+                conn.rollback();
+            }
+
         } catch (Exception e) {
+            try { if (conn != null) conn.rollback(); } catch (Exception ex) { ex.printStackTrace(); }
             e.printStackTrace();
+        } finally {
+            try { if (conn != null) conn.setAutoCommit(true); } catch (Exception ex) { ex.printStackTrace(); }
         }
         return isSuccess;
     }

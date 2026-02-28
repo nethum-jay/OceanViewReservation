@@ -1,75 +1,74 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.oceanview.model.User" %>
 <%
+    String role = (String) session.getAttribute("userRole");
+    if (role == null || !role.equals("Admin")) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
     User u = (User) request.getAttribute("userToEdit");
-    if (u == null) { response.sendRedirect("ManageUsersServlet"); return; }
+    if (u == null) {
+        response.sendRedirect("ManageUsersServlet");
+        return;
+    }
 %>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Edit User Details - Admin Portal</title>
+    <meta charset="UTF-8">
+    <title>Edit User Account - Ocean View Resort</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Poppins', sans-serif; background: #f4f7fc; display: flex; justify-content: center; padding: 40px; }
-        .form-card { background: white; padding: 35px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
-        h2 { color: #005f73; margin-bottom: 25px; text-align: center; font-weight: 700; }
-        .input-row { display: flex; gap: 15px; }
-        .input-col { flex: 1; }
-        label { font-size: 13px; font-weight: 600; color: #555; display: block; margin-top: 15px; }
-        input, select { width: 100%; padding: 12px; margin-top: 5px; border: 1.5px solid #eef2f5; border-radius: 10px; box-sizing: border-box; background: #f9fbfd; font-family: 'Poppins'; }
-        input:focus { border-color: #0a9396; outline: none; background: white; }
-        button { width: 100%; padding: 14px; background: #005f73; color: white; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; margin-top: 30px; transition: 0.3s; }
-        button:hover { background: #0a9396; transform: translateY(-2px); }
-        .cancel-link { display: block; text-align: center; margin-top: 15px; color: #888; text-decoration: none; font-size: 14px; }
+        :root { --primary: #005f73; --bg-light: #f4f7f6; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg-light); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .card { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); width: 100%; max-width: 500px; }
+        h2 { color: var(--primary); text-align: center; margin-bottom: 30px; font-size: 22px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group.full-width { grid-column: span 2; }
+        label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: #333; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-family: 'Poppins'; box-sizing: border-box; font-size: 14px; }
+        .btn { width: 100%; background: var(--primary); color: white; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; margin-top: 15px; }
+        .btn:hover { background: #0a9396; }
+        .back-link { display: block; text-align: center; margin-top: 20px; text-decoration: none; color: #666; font-size: 13px; }
+        .back-link:hover { color: var(--primary); font-weight: 500;}
     </style>
 </head>
 <body>
-<div class="form-card">
-    <h2>Edit Complete User Profile</h2>
+<div class="card">
+    <h2>Edit Account Details</h2>
     <form action="UpdateUserByAdminServlet" method="POST">
         <input type="hidden" name="id" value="<%= u.getId() %>">
 
-        <label>Full Name</label>
-        <input type="text" name="fullName" value="<%= (u.getFullName() != null) ? u.getFullName() : "" %>">
-
-        <div class="input-row">
-            <div class="input-col">
+        <div class="form-grid">
+            <div class="form-group">
                 <label>Username</label>
                 <input type="text" name="username" value="<%= u.getUsername() %>" required>
             </div>
-            <div class="input-col">
+
+            <div class="form-group">
                 <label>Password</label>
                 <input type="text" name="password" value="<%= u.getPassword() %>" required>
             </div>
-        </div>
 
-        <div class="input-row">
-            <div class="input-col">
-                <label>NIC Number</label>
-                <input type="text" name="nic" value="<%= (u.getNic() != null) ? u.getNic() : "" %>">
-            </div>
-            <div class="input-col">
+            <div class="form-group">
                 <label>Phone Number</label>
-                <input type="text" name="phone" value="<%= (u.getPhone() != null) ? u.getPhone() : "" %>" required>
+                <input type="text" name="phone" value="<%= u.getPhone() != null && !u.getPhone().equals("null") ? u.getPhone() : "" %>" required>
+            </div>
+
+            <div class="form-group">
+                <label>System Role</label>
+                <select name="role" required>
+                    <option value="Admin" <%= "Admin".equals(u.getRole()) ? "selected" : "" %>>Admin</option>
+                    <option value="Staff" <%= "Staff".equals(u.getRole()) ? "selected" : "" %>>Staff</option>
+                    <option value="Customer" <%= "Customer".equals(u.getRole()) ? "selected" : "" %>>Customer</option>
+                </select>
             </div>
         </div>
 
-        <label>Email Address</label>
-        <input type="email" name="email" value="<%= (u.getEmail() != null) ? u.getEmail() : "" %>">
-
-        <label>Home Address</label>
-        <input type="text" name="address" value="<%= (u.getAddress() != null) ? u.getAddress() : "" %>">
-
-        <label>System Role</label>
-        <select name="role">
-            <option value="Customer" <%= "Customer".equals(u.getRole())?"selected":"" %>>Customer</option>
-            <option value="Staff" <%= "Staff".equals(u.getRole())?"selected":"" %>>Staff</option>
-            <option value="Admin" <%= "Admin".equals(u.getRole())?"selected":"" %>>Admin</option>
-        </select>
-
-        <button type="submit">Save All Changes</button>
+        <button type="submit" class="btn">Save Changes</button>
+        <a href="ManageUsersServlet" class="back-link">Cancel and Go Back</a>
     </form>
-    <a href="ManageUsersServlet" class="cancel-link">Cancel and Go Back</a>
 </div>
 </body>
 </html>

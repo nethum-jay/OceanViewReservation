@@ -82,11 +82,6 @@
                 <h3>My Bookings</h3>
                 <p>Search & manage bookings.</p>
             </a>
-            <a href="userProfile.jsp" class="card">
-                <div class="icon-box"><i class="fa-solid fa-user-edit"></i></div>
-                <h3>My Profile</h3>
-                <p>View account details.</p>
-            </a>
             <a href="help.jsp" class="card">
                 <div class="icon-box"><i class="fa-solid fa-headset"></i></div>
                 <h3>Help & Support</h3>

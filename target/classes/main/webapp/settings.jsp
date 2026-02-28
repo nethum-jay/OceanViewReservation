@@ -71,7 +71,7 @@
 
             <div class="form-group">
                 <label>Resort Address</label>
-                <input type="text" name="address" value="No 45, Beach Road, Galle" required>
+                <input type="text" name="address" value="463/1G,Athurugiriya Road, Malabe, Sri Lanka" required>
             </div>
 
             <button type="submit" class="save-btn" onclick="alert('Settings Saved Successfully! (Simulation)')">
