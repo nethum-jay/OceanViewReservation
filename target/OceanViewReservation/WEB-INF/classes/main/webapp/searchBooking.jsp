@@ -3,6 +3,8 @@
 <%
     String dashboardLink = "customerDashboard.jsp";
     String role = (String) session.getAttribute("userRole");
+    boolean isCustomer = "Customer".equals(role);
+
     if ("Admin".equals(role)) dashboardLink = "adminDashboard.jsp";
     else if ("Staff".equals(role)) dashboardLink = "staffDashboard.jsp";
 %>
@@ -41,7 +43,7 @@
         @media print {
             body { background: white; }
             .overlay, header, .search-box, .print-btn { display: none !important; }
-            .bill-card { box-shadow: none; max-width: 100%; border: 1px solid #ddd; }
+            .bill-card { box-shadow: none; max-width: 100%; border: 1px solid #ddd; padding: 0; }
         }
     </style>
 </head>
@@ -54,9 +56,14 @@
 
 <div class="container">
     <div class="search-box">
-        <h3 style="margin-top:0; color: var(--primary);"><i class="fa-solid fa-file-invoice-dollar"></i> Search Booking / Invoice</h3>
+        <h3 style="margin-top:0; color: var(--primary);">
+            <i class="fa-solid fa-file-invoice-dollar"></i> <%= isCustomer ? "Print My Invoice" : "Search Guest Invoice" %>
+        </h3>
+        <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
+            <%= isCustomer ? "Enter <strong>your</strong> Booking ID to print the bill." : "Enter Guest <strong>Booking ID</strong> to generate the bill." %>
+        </p>
         <form action="SearchBookingServlet" method="GET">
-            <input type="text" name="bookingId" placeholder="Enter Booking ID (e.g. 5)" required>
+            <input type="text" name="bookingId" placeholder="e.g. 5" required>
             <button type="submit"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
         </form>
         <% if(request.getAttribute("errorMessage") != null) { %>

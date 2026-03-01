@@ -2,43 +2,57 @@ package com.oceanview.controller;
 
 import com.oceanview.dao.ReservationDAO;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 @WebServlet("/ViewReservationServlet")
 public class ViewReservationServlet extends HttpServlet {
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String searchValue = request.getParameter("searchValue");
+        HttpSession session = request.getSession(false);
 
-        if (searchValue != null && !searchValue.trim().isEmpty()) {
-            ReservationDAO dao = new ReservationDAO();
-            Map<String, String> details = null;
-
-            searchValue = searchValue.trim().replace("#", "");
-
-            try {
-                // If it's an ID (numbers only and short)
-                if(searchValue.matches("\\d+") && searchValue.length() < 8) {
-                    details = dao.getReservationDetailsById(Integer.parseInt(searchValue));
-                } else {
-                    // Else, try to search by Phone Number
-                    details = dao.getCompleteReservationDetails(searchValue);
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            if (details != null) {
-                request.setAttribute("resDetails", details);
-            } else {
-                request.setAttribute("errorMessage", "No active booking found for the provided details.");
-            }
+        // ලොග් වී නොමැති නම් ලොගින් පිටුවට යැවීම
+        if (session == null || session.getAttribute("userRole") == null) {
+            response.sendRedirect("login.jsp");
+            return;
         }
+
+        String role = (String) session.getAttribute("userRole");
+        String loggedUser = (String) session.getAttribute("loggedUser"); // Username එක
+
+        ReservationDAO dao = new ReservationDAO();
+        List<Map<String, String>> resList = null;
+
+        try {
+            if ("Customer".equals(role)) {
+                // Customer කෙනෙකු නම්, ඔහුගේ Username එකට අදාළ සියලුම Bookings ගෙන ඒම
+                resList = dao.getCustomerReservations(loggedUser);
+            } else {
+                // Admin හෝ Staff නම්, Search Box එකෙන් එන අගය (ID හෝ Phone) සෙවීම
+                String searchValue = request.getParameter("searchValue");
+
+                if (searchValue != null && !searchValue.trim().isEmpty()) {
+                    resList = dao.searchReservations(searchValue.trim());
+
+                    if (resList == null || resList.isEmpty()) {
+                        request.setAttribute("errorMessage", "No bookings found for the provided ID or Phone Number.");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("errorMessage", "An error occurred while fetching reservations.");
+        }
+
+        // Sending the List to the JSP Page
+        request.setAttribute("resList", resList);
         request.getRequestDispatcher("viewReservation.jsp").forward(request, response);
     }
 }

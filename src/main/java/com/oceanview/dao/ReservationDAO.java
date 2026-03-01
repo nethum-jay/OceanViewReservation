@@ -283,4 +283,139 @@ public class ReservationDAO {
             return false;
         }
     }
+
+    public List<Map<String, String>> getCustomerReservations(String username) {
+        List<Map<String, String>> list = new ArrayList<>();
+        try {
+            Connection conn = DBConnection.getInstance().getConnection();
+
+            String sql = "SELECT r.reservationID, g.name, g.nic, g.contactNo, r.roomType, r.noOfPersons, r.checkInDate, r.checkOutDate " +
+                    "FROM reservation r " +
+                    "JOIN guest g ON r.guestID = g.guestID " +
+                    "JOIN users u ON g.contactNo = u.phone " +
+                    "WHERE u.username = ? ORDER BY r.reservationID DESC";
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, username);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Map<String, String> map = new HashMap<>();
+                map.put("reservationID", String.valueOf(rs.getInt("reservationID")));
+                map.put("name", rs.getString("name"));
+                map.put("nic", rs.getString("nic"));
+                map.put("contactNo", rs.getString("contactNo"));
+                map.put("roomType", rs.getString("roomType"));
+                map.put("noOfPersons", String.valueOf(rs.getInt("noOfPersons")));
+                map.put("checkInDate", rs.getDate("checkInDate").toString());
+                map.put("checkOutDate", rs.getDate("checkOutDate").toString());
+                list.add(map);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public List<Map<String, String>> searchReservations(String searchValue) {
+        List<Map<String, String>> list = new ArrayList<>();
+        try {
+            Connection conn = DBConnection.getInstance().getConnection();
+            String sql = "SELECT r.reservationID, g.name, g.nic, g.contactNo, r.roomType, r.noOfPersons, r.checkInDate, r.checkOutDate " +
+                    "FROM reservation r " +
+                    "JOIN guest g ON r.guestID = g.guestID " +
+                    "WHERE r.reservationID = ? OR g.contactNo = ? ORDER BY r.reservationID DESC";
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            // Checking if the Search value is an ID (a number)
+            int resId = 0;
+            try {
+                resId = Integer.parseInt(searchValue);
+            } catch (NumberFormatException e) {
+            }
+
+            ps.setInt(1, resId);
+            ps.setString(2, searchValue);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Map<String, String> map = new HashMap<>();
+                map.put("reservationID", String.valueOf(rs.getInt("reservationID")));
+                map.put("name", rs.getString("name"));
+                map.put("nic", rs.getString("nic"));
+                map.put("contactNo", rs.getString("contactNo"));
+                map.put("roomType", rs.getString("roomType"));
+                map.put("noOfPersons", String.valueOf(rs.getInt("noOfPersons")));
+                map.put("checkInDate", rs.getDate("checkInDate").toString());
+                map.put("checkOutDate", rs.getDate("checkOutDate").toString());
+                list.add(map);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
+    }
+
+    public Map<String, String> getInvoiceDetailsSecure(String bookingId, String role, String username) {
+        Map<String, String> details = null;
+        try {
+            Connection conn = DBConnection.getInstance().getConnection();
+
+            String sql = "SELECT r.reservationID, g.name, g.contactNo, g.email, g.nic, g.address, " +
+                    "r.roomType, r.noOfPersons, r.checkInDate, r.checkOutDate, " +
+                    "DATEDIFF(r.checkOutDate, r.checkInDate) as nights " +
+                    "FROM reservation r " +
+                    "JOIN guest g ON r.guestID = g.guestID ";
+
+            if ("Customer".equals(role)) {
+                sql += "JOIN users u ON g.contactNo = u.phone WHERE r.reservationID = ? AND u.username = ?";
+            } else {
+                sql += "WHERE r.reservationID = ?";
+            }
+
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, Integer.parseInt(bookingId));
+
+            if ("Customer".equals(role)) {
+                ps.setString(2, username);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                details = new HashMap<>();
+                details.put("reservationID", String.valueOf(rs.getInt("reservationID")));
+                details.put("name", rs.getString("name"));
+                details.put("contactNo", rs.getString("contactNo"));
+                details.put("email", rs.getString("email"));
+                details.put("nic", rs.getString("nic") != null ? rs.getString("nic") : "N/A");
+                details.put("address", rs.getString("address"));
+
+                String roomType = rs.getString("roomType");
+                details.put("roomType", roomType);
+                details.put("noOfPersons", String.valueOf(rs.getInt("noOfPersons")));
+                details.put("checkInDate", rs.getDate("checkInDate").toString());
+                details.put("checkOutDate", rs.getDate("checkOutDate").toString());
+
+                int nights = rs.getInt("nights");
+                if(nights <= 0) nights = 1;
+                details.put("nights", String.valueOf(nights));
+
+                double pricePerNight = 0;
+                switch(roomType) {
+                    case "Single": pricePerNight = 10000; break;
+                    case "Double": pricePerNight = 15000; break;
+                    case "Family": pricePerNight = 25000; break;
+                    case "Suite":  pricePerNight = 30000; break;
+                    default: pricePerNight = 10000;
+                }
+                double totalAmount = pricePerNight * nights;
+
+                details.put("totalAmount", String.format("%,.2f", totalAmount));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return details;
+    }
 }

@@ -78,7 +78,7 @@
                 <p>Book a room for yourself.</p>
             </a>
 
-            <a href="viewReservation.jsp" class="card">
+            <a href="ViewReservationServlet" class="card">
                 <div class="icon-box"><i class="fa-solid fa-suitcase"></i></div>
                 <h3>My Bookings</h3>
                 <p>Search & manage bookings.</p>
