@@ -38,22 +38,27 @@ public class GuestDAO {
         try {
             Connection conn = DBConnection.getInstance().getConnection();
 
-            // First, check if someone with this NIC already exists in the system.
-            String checkSql = "SELECT guestID FROM guest WHERE nic = ?";
+            // වෙනස් කළ ස්ථානය: දුරකථන අංකය (contactNo) හෝ NIC එක තිබේදැයි පරීක්ෂා කිරීම.
+            // මෙය Duplicate Entry Error එක සම්පූර්ණයෙන්ම වළක්වයි.
+            String checkSql = "SELECT guestID FROM guest WHERE contactNo = ? OR nic = ?";
             PreparedStatement checkStmt = conn.prepareStatement(checkSql);
-            checkStmt.setString(1, nic);
+            checkStmt.setString(1, contactNo);
+            checkStmt.setString(2, nic);
             ResultSet rs = checkStmt.executeQuery();
 
             if (rs.next()) {
                 // If someone is present, update their data and obtain the relevant guestID.
                 guestId = rs.getInt("guestID");
-                String updateSql = "UPDATE guest SET name=?, email=?, address=?, contactNo=? WHERE guestID=?";
+
+                // If a new NIC was provided during the update, it is also added to the nic=? to be updated.
+                String updateSql = "UPDATE guest SET name=?, nic=?, email=?, address=?, contactNo=? WHERE guestID=?";
                 PreparedStatement updateStmt = conn.prepareStatement(updateSql);
                 updateStmt.setString(1, name);
-                updateStmt.setString(2, email);
-                updateStmt.setString(3, address);
-                updateStmt.setString(4, contactNo);
-                updateStmt.setInt(5, guestId);
+                updateStmt.setString(2, nic);
+                updateStmt.setString(3, email);
+                updateStmt.setString(4, address);
+                updateStmt.setString(5, contactNo);
+                updateStmt.setInt(6, guestId);
                 updateStmt.executeUpdate();
             } else {
                 // If it's a new user, insert new data into the 'guest' table and get the new guestID.
