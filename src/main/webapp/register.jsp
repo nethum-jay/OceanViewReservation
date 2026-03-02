@@ -66,18 +66,42 @@
     <h2>Create Account</h2>
 
     <% if(request.getAttribute("successMessage") != null) { %>
-    <div class="success-msg"><i class="fa-solid fa-circle-check"></i> <%= request.getAttribute("successMessage") %></div>
+    <div class="success-msg">
+        <i class="fa-solid fa-circle-check"></i> <%= request.getAttribute("successMessage") %>
+        <br><span style="font-size: 11px; font-weight: normal;">Redirecting to Login page...</span>
+    </div>
+
+    <script>
+        setTimeout(function() {
+            window.location.href = "login.jsp";
+        }, 3000); // 3000 milliseconds = 3 seconds
+    </script>
     <% } %>
+
     <% if(request.getAttribute("errorMessage") != null) { %>
     <div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <%= request.getAttribute("errorMessage") %></div>
     <% } %>
 
-    <form action="RegisterServlet" method="POST">
+    <form action="RegisterServlet" method="POST" autocomplete="off" onsubmit="return secureSubmit();">
+
+        <div style="position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden;">
+            <input type="text" autocomplete="username" tabindex="-1">
+            <input type="password" autocomplete="new-password" tabindex="-1">
+            <input type="tel" autocomplete="tel" tabindex="-1">
+        </div>
+
+        <input type="hidden" name="username" id="realUsername">
+        <input type="hidden" name="password" id="realPassword">
+        <input type="hidden" name="phone" id="realPhone">
+
         <div class="input-group">
             <label>Choose Username</label>
             <div class="input-container">
                 <i class="fa-solid fa-user"></i>
-                <input type="text" name="username" placeholder="Enter new username" required oninput="capitalizeFirstLetter(this)">
+                <input type="text" id="dummyUsername" placeholder="Letters only (e.g. Kasun)" required
+                       autocomplete="off" readonly onfocus="this.removeAttribute('readonly');"
+                       title="Username can only contain letters and spaces."
+                       oninput="formatUsername(this)">
             </div>
         </div>
 
@@ -85,7 +109,10 @@
             <label>Create Password</label>
             <div class="input-container">
                 <i class="fa-solid fa-lock"></i>
-                <input type="password" name="password" placeholder="Create a strong password" required>
+                <input type="password" id="dummyPassword" placeholder="Min 8 chars, 1 number & 1 symbol" required
+                       autocomplete="new-password" readonly onfocus="this.removeAttribute('readonly');"
+                       pattern="(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}"
+                       title="Password must be at least 8 characters long, and contain at least one number and one special symbol (e.g., @, #, $).">
             </div>
         </div>
 
@@ -93,7 +120,10 @@
             <label>Phone Number</label>
             <div class="input-container">
                 <i class="fa-solid fa-phone"></i>
-                <input type="tel" name="phone" placeholder="07XXXXXXXX" required pattern="[0-9]{10}">
+                <input type="tel" id="dummyPhone" placeholder="07XXXXXXXX" required pattern="[0-9]{10}" maxlength="10"
+                       autocomplete="off" readonly onfocus="this.removeAttribute('readonly');"
+                       title="Please enter a valid 10-digit phone number."
+                       oninput="formatPhone(this)">
             </div>
         </div>
 
@@ -109,11 +139,23 @@
 </div>
 
 <script>
-    function capitalizeFirstLetter(inputField) {
+    function formatUsername(inputField) {
+        inputField.value = inputField.value.replace(/[^a-zA-Z\s]/g, '');
         let text = inputField.value;
         if (text.length > 0) {
             inputField.value = text.charAt(0).toUpperCase() + text.slice(1);
         }
+    }
+
+    function formatPhone(inputField) {
+        inputField.value = inputField.value.replace(/[^0-9]/g, '');
+    }
+
+    function secureSubmit() {
+        document.getElementById('realUsername').value = document.getElementById('dummyUsername').value;
+        document.getElementById('realPassword').value = document.getElementById('dummyPassword').value;
+        document.getElementById('realPhone').value = document.getElementById('dummyPhone').value;
+        return true;
     }
 </script>
 

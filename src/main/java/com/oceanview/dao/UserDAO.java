@@ -10,7 +10,7 @@ import java.util.List;
 
 public class UserDAO {
 
-    // 1. Checking the name and password when logging into the system
+    // Checking the name and password when logging into the system
     public User authenticateUser(String username, String password) {
         User user = null;
         try {
@@ -33,7 +33,7 @@ public class UserDAO {
         return user;
     }
 
-    // 2. Registering new users
+    // Registering new users
     public boolean registerUser(User user) {
         boolean isSuccess = false;
         try {
@@ -56,7 +56,7 @@ public class UserDAO {
         return isSuccess;
     }
 
-    // 3. Retrieving user information by username
+    // Retrieving user information by username
     public User getUserByUsername(String username) {
         User user = null;
         try {
@@ -80,7 +80,7 @@ public class UserDAO {
         return user;
     }
 
-    // 4. Getting a list of all users in the system (for Admin)
+    // Getting a list of all users in the system (for Admin)
     public List<User> getAllUsers() {
         List<User> userList = new ArrayList<>();
         try {
@@ -103,7 +103,7 @@ public class UserDAO {
         return userList;
     }
 
-    // 5. Retrieving user information by ID
+    // Retrieving user information by ID
     public User getUserById(int id) {
         User user = null;
         try {
@@ -127,7 +127,7 @@ public class UserDAO {
         return user;
     }
 
-    // 6. Updating user account details by Admin
+    // Updating user account details by Admin
     public boolean updateUserDetailsByAdmin(User u) {
         boolean isSuccess = false;
         try {
@@ -149,7 +149,7 @@ public class UserDAO {
         return isSuccess;
     }
 
-    // 7. Removing a user from the system
+    // Removing a user from the system
     public boolean deleteUser(int id) {
         try {
             Connection conn = DBConnection.getInstance().getConnection();
@@ -161,5 +161,25 @@ public class UserDAO {
             e.printStackTrace();
             return false;
         }
+    }
+
+    // Checking if only the phone number is available in the system
+    public boolean isUserExists(String phone) {
+        boolean exists = false;
+        try {
+            Connection conn = DBConnection.getInstance().getConnection();
+            // Only checks the phone number.
+            String sql = "SELECT * FROM users WHERE phone = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, phone);
+
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                exists = true; // Someone from this number is already there
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return exists;
     }
 }

@@ -53,7 +53,6 @@
         }
         .submit-btn:hover { box-shadow: 0 5px 15px rgba(0,95,115,0.4); transform: translateY(-2px); }
 
-        /* Red message displayed when an incorrect password is entered */
         .error-msg {
             color: var(--danger); font-weight: 600; font-size: 14px; background: #ffe6e6;
             padding: 10px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--danger);
@@ -69,14 +68,27 @@
 
     <% if(request.getAttribute("errorMessage") != null) { %>
     <div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <%= request.getAttribute("errorMessage") %></div>
+    <% } else if(request.getParameter("error") != null) { %>
+    <div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <%= request.getParameter("error") %></div>
     <% } %>
 
-    <form action="LoginServlet" method="POST">
+    <form action="LoginServlet" method="POST" autocomplete="off" onsubmit="return secureSubmit();">
+
+        <div style="position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden;">
+            <input type="text" autocomplete="username" tabindex="-1">
+            <input type="password" autocomplete="current-password" tabindex="-1">
+        </div>
+
+        <input type="hidden" name="username" id="realUsername">
+        <input type="hidden" name="password" id="realPassword">
+
         <div class="input-group">
             <label>Username</label>
             <div class="input-container">
                 <i class="fa-solid fa-user"></i>
-                <input type="text" name="username" placeholder="Enter your username" required>
+                <input type="text" id="dummyUsername" placeholder="Letters only (e.g. Kasun)" required
+                       autocomplete="off" readonly onfocus="this.removeAttribute('readonly');"
+                       oninput="formatUsername(this)">
             </div>
         </div>
 
@@ -84,12 +96,14 @@
             <label>Password</label>
             <div class="input-container">
                 <i class="fa-solid fa-lock"></i>
-                <input type="password" name="password" placeholder="Enter your password" required>
+                <input type="password" id="dummyPassword" placeholder="Enter your password" required
+                       autocomplete="new-password">
             </div>
         </div>
 
         <button type="submit" class="submit-btn"><i class="fa-solid fa-right-to-bracket"></i> Secure Login</button>
     </form>
+
     <div style="margin-top: 25px; font-size: 14px; color: #555;">
         Don't have an account?
         <a href="register.jsp" style="color: var(--primary); font-weight: 600; text-decoration: none; transition: 0.3s;">
@@ -97,5 +111,22 @@
         </a>
     </div>
 </div>
+
+<script>
+    function formatUsername(inputField) {
+        inputField.value = inputField.value.replace(/[^a-zA-Z\s]/g, '');
+        let text = inputField.value;
+        if (text.length > 0) {
+            inputField.value = text.charAt(0).toUpperCase() + text.slice(1);
+        }
+    }
+
+    function secureSubmit() {
+        document.getElementById('realUsername').value = document.getElementById('dummyUsername').value;
+        document.getElementById('realPassword').value = document.getElementById('dummyPassword').value;
+        return true;
+    }
+</script>
+
 </body>
 </html>

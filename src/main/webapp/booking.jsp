@@ -139,33 +139,52 @@
             <div class="alert error"><i class="fa-solid fa-circle-exclamation"></i> <%= request.getAttribute("errorMessage") %></div>
             <% } %>
 
-            <form action="AddNewReservationServlet" method="POST">
+            <form action="AddNewReservationServlet" method="POST" autocomplete="off">
                 <h3 class="section-title"><i class="fa-solid fa-user-circle"></i> Guest Details</h3>
                 <div class="form-grid">
+
                     <div class="input-group full-width">
                         <label>Full Name</label>
                         <i class="fa-solid fa-user input-icon"></i>
-                        <input type="text" name="guestName" placeholder="Enter Full Name" required>
+                        <input type="text" name="guestName" placeholder="Enter Full Name" required
+                               autocomplete="off" spellcheck="false"
+                               readonly onfocus="this.removeAttribute('readonly');"
+                               oninput="formatName(this)"
+                               title="Only letters and spaces are allowed">
                     </div>
+
                     <div class="input-group">
                         <label>NIC / Passport Number</label>
                         <i class="fa-solid fa-id-card input-icon"></i>
-                        <input type="text" name="nic" placeholder="Enter NIC or Passport" required>
+                        <input type="text" name="nic" placeholder="Enter NIC or Passport" required
+                               autocomplete="off" spellcheck="false"
+                               readonly onfocus="this.removeAttribute('readonly');"
+                               oninput="formatNIC(this)"
+                               title="Enter a valid NIC (e.g. 123456789V or 123456789012)">
                     </div>
+
                     <div class="input-group">
                         <label>Email Address</label>
                         <i class="fa-solid fa-envelope input-icon"></i>
-                        <input type="email" name="email" placeholder="john@example.com" required>
+                        <input type="email" name="email" placeholder="john@example.com" required
+                               autocomplete="off" spellcheck="false"
+                               readonly onfocus="this.removeAttribute('readonly');">
                     </div>
+
                     <div class="input-group full-width">
                         <label>Residential Address</label>
                         <i class="fa-solid fa-map-location-dot input-icon"></i>
-                        <input type="text" name="address" placeholder="Enter full address" required>
+                        <input type="text" name="address" placeholder="Enter full address" required
+                               autocomplete="off" spellcheck="false"
+                               readonly onfocus="this.removeAttribute('readonly');">
                     </div>
+
                     <div class="input-group">
                         <label>Contact Number</label>
                         <i class="fa-solid fa-phone input-icon"></i>
-                        <input type="tel" name="contactNo" placeholder="07XXXXXXXX" pattern="[0-9]{10}"
+                        <input type="tel" name="contactNo" placeholder="07XXXXXXXX" pattern="[0-9]{10}" maxlength="10"
+                               autocomplete="off" spellcheck="false"
+                               readonly onfocus="this.removeAttribute('readonly');"
                                value="<%= (u != null && u.getPhone() != null && !u.getPhone().equals("null")) ? u.getPhone() : "" %>" required>
                     </div>
                 </div>
@@ -214,6 +233,32 @@
 </footer>
 
 <script>
+    // Validation for Full Name (Only letters and spaces)
+    function formatName(inputField) {
+        inputField.value = inputField.value.replace(/[^a-zA-Z\s]/g, '');
+        // Capitalize first letters of names
+        let words = inputField.value.split(' ');
+        for (let i = 0; i < words.length; i++) {
+            if (words[i].length > 0) {
+                words[i] = words[i].charAt(0).toUpperCase() + words[i].slice(1);
+            }
+        }
+        inputField.value = words.join(' ');
+    }
+
+    // Validation for NIC (Only numbers, and V or v or X or x at the end)
+    function formatNIC(inputField) {
+        // Allows numbers and the letters V/v/X/x
+        inputField.value = inputField.value.replace(/[^0-9vVxX]/g, '');
+        // Automatically uppercase any v or x
+        inputField.value = inputField.value.toUpperCase();
+
+        // Limit to 12 characters
+        if(inputField.value.length > 12) {
+            inputField.value = inputField.value.substring(0, 12);
+        }
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const today = new Date().toISOString().split('T')[0];
         const checkIn = document.getElementById('checkIn');
