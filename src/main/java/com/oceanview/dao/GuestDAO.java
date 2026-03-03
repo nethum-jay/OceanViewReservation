@@ -38,8 +38,7 @@ public class GuestDAO {
         try {
             Connection conn = DBConnection.getInstance().getConnection();
 
-            // වෙනස් කළ ස්ථානය: දුරකථන අංකය (contactNo) හෝ NIC එක තිබේදැයි පරීක්ෂා කිරීම.
-            // මෙය Duplicate Entry Error එක සම්පූර්ණයෙන්ම වළක්වයි.
+            // This completely prevents the Duplicate Entry Error.
             String checkSql = "SELECT guestID FROM guest WHERE contactNo = ? OR nic = ?";
             PreparedStatement checkStmt = conn.prepareStatement(checkSql);
             checkStmt.setString(1, contactNo);

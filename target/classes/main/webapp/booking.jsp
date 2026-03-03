@@ -76,9 +76,10 @@
         .price-badge { background: var(--primary); color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; margin-top: 5px; font-weight: 500; }
 
         /* Dynamic Price Display under Dropdown */
-        .price-display { font-size: 13px; color: var(--secondary); font-weight: 600; margin-top: 5px; margin-left: 5px; display: flex; align-items: center; gap: 5px; opacity: 0; transition: opacity 0.3s ease; }
+        .price-display { font-size: 12px; color: var(--secondary); font-weight: 600; margin-top: 5px; margin-left: 5px; display: flex; flex-direction: column; gap: 2px; opacity: 0; transition: opacity 0.3s ease; }
         .price-display.visible { opacity: 1; }
         .price-value { color: #e63946; font-size: 15px; font-weight: 700; }
+        .capacity-info { color: var(--primary); font-size: 11px; font-style: italic; }
     </style>
 </head>
 <body>
@@ -98,34 +99,33 @@
         </div>
         <div class="form-body">
             <div class="availability-panel">
-                <h4><i class="fa-solid fa-tags"></i> Room Rates & Availability</h4>
+                <h4><i class="fa-solid fa-tags"></i> Room Rates & Capacity</h4>
                 <div class="room-stats">
                     <div class="stat-box">
                         <i class="fa-solid fa-bed"></i>
-                        <span class="type">Single</span>
+                        <span class="type">Single (Max 1)</span>
                         <span class="price-badge">Rs. 10,000</span>
                         <span class="count" id="singleCount">--</span>
                     </div>
                     <div class="stat-box">
                         <i class="fa-solid fa-user-group"></i>
-                        <span class="type">Double</span>
+                        <span class="type">Double (Max 2)</span>
                         <span class="price-badge">Rs. 15,000</span>
                         <span class="count" id="doubleCount">--</span>
                     </div>
                     <div class="stat-box">
                         <i class="fa-solid fa-users"></i>
-                        <span class="type">Family</span>
+                        <span class="type">Family (Max 4)</span>
                         <span class="price-badge">Rs. 25,000</span>
                         <span class="count" id="familyCount">--</span>
                     </div>
                     <div class="stat-box">
                         <i class="fa-solid fa-star"></i>
-                        <span class="type">Suite</span>
+                        <span class="type">Suite (Max 2)</span>
                         <span class="price-badge">Rs. 30,000</span>
                         <span class="count" id="suiteCount">--</span>
                     </div>
                 </div>
-                <p style="font-size: 11px; color: var(--text-muted); margin: 8px 0 0 0;">* Select dates to see availability. Prices are per night.</p>
             </div>
 
             <% if(request.getAttribute("successMessage") != null) { %>
@@ -160,7 +160,7 @@
                                autocomplete="off" spellcheck="false"
                                readonly onfocus="this.removeAttribute('readonly');"
                                oninput="formatNIC(this)"
-                               title="Enter a valid NIC (e.g. 123456789V or 123456789012)">
+                               title="Enter a valid NIC">
                     </div>
 
                     <div class="input-group">
@@ -196,20 +196,21 @@
                         <i class="fa-solid fa-door-open input-icon"></i>
                         <select name="roomType" id="roomType" required>
                             <option value="" disabled selected>-- Choose room --</option>
-                            <option value="Single">Standard Single Room</option>
-                            <option value="Double">Deluxe Double Room</option>
-                            <option value="Family">Family Room (4 Persons)</option>
-                            <option value="Suite">Ocean View Luxury Suite</option>
+                            <option value="Single">Standard Single Room (Max 1)</option>
+                            <option value="Double">Deluxe Double Room (Max 2)</option>
+                            <option value="Family">Family Room (Max 4)</option>
+                            <option value="Suite">Ocean View Luxury Suite (Max 2)</option>
                         </select>
                         <div id="selectedPrice" class="price-display">
-                            <i class="fa-solid fa-tag"></i> Rate per Night: <span class="price-value" id="priceValue">LKR 0.00</span>
+                            <span class="price-value" id="priceValue">LKR 0.00</span>
+                            <span class="capacity-info" id="capacityValue">Max Occupancy: --</span>
                         </div>
                     </div>
 
                     <div class="input-group">
                         <label>Number of Persons</label>
                         <i class="fa-solid fa-users input-icon"></i>
-                        <input type="number" name="noOfPersons" min="1" max="10" placeholder="Total guests" required>
+                        <input type="number" name="noOfPersons" id="noOfPersons" min="1" placeholder="Guests" required>
                     </div>
 
                     <div class="input-group">
@@ -233,10 +234,8 @@
 </footer>
 
 <script>
-    // Validation for Full Name (Only letters and spaces)
     function formatName(inputField) {
         inputField.value = inputField.value.replace(/[^a-zA-Z\s]/g, '');
-        // Capitalize first letters of names
         let words = inputField.value.split(' ');
         for (let i = 0; i < words.length; i++) {
             if (words[i].length > 0) {
@@ -246,42 +245,46 @@
         inputField.value = words.join(' ');
     }
 
-    // Validation for NIC (Only numbers, and V or v or X or x at the end)
     function formatNIC(inputField) {
-        // Allows numbers and the letters V/v/X/x
-        inputField.value = inputField.value.replace(/[^0-9vVxX]/g, '');
-        // Automatically uppercase any v or x
-        inputField.value = inputField.value.toUpperCase();
-
-        // Limit to 12 characters
-        if(inputField.value.length > 12) {
-            inputField.value = inputField.value.substring(0, 12);
-        }
+        inputField.value = inputField.value.replace(/[^0-9vVxX]/g, '').toUpperCase();
+        if(inputField.value.length > 12) inputField.value = inputField.value.substring(0, 12);
     }
 
     document.addEventListener('DOMContentLoaded', function() {
         const today = new Date().toISOString().split('T')[0];
         const checkIn = document.getElementById('checkIn');
         const checkOut = document.getElementById('checkOut');
-
-        //Price Display Logic
         const roomTypeSelect = document.getElementById('roomType');
+        const noOfPersonsInput = document.getElementById('noOfPersons');
         const selectedPriceDiv = document.getElementById('selectedPrice');
         const priceValueSpan = document.getElementById('priceValue');
+        const capacityValueSpan = document.getElementById('capacityValue');
 
-        const roomRates = {
-            "Single": 10000,
-            "Double": 15000,
-            "Family": 25000,
-            "Suite": 30000
+        // Room Data: Price and Max Capacity
+        const roomData = {
+            "Single": { price: 10000, max: 1 },
+            "Double": { price: 15000, max: 2 },
+            "Family": { price: 25000, max: 4 },
+            "Suite":  { price: 30000, max: 2 }
         };
 
         roomTypeSelect.addEventListener('change', function() {
             const selectedRoom = this.value;
-            if (roomRates[selectedRoom]) {
-                const formattedPrice = roomRates[selectedRoom].toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                priceValueSpan.innerText = "LKR " + formattedPrice;
+            if (roomData[selectedRoom]) {
+                const data = roomData[selectedRoom];
+
+                // Update Price Display
+                const formattedPrice = data.price.toLocaleString('en-US', { minimumFractionDigits: 2 });
+                priceValueSpan.innerText = "Rate per Night: LKR " + formattedPrice;
+                capacityValueSpan.innerText = "Max Occupancy: " + data.max + " Person(s)";
                 selectedPriceDiv.classList.add('visible');
+
+                // Update Number of Persons constraints
+                noOfPersonsInput.max = data.max;
+                if(noOfPersonsInput.value > data.max) {
+                    noOfPersonsInput.value = data.max;
+                    alert("Maximum occupancy for " + selectedRoom + " room is " + data.max);
+                }
             } else {
                 selectedPriceDiv.classList.remove('visible');
             }
@@ -289,14 +292,14 @@
 
         // Date & Availability Logic
         checkIn.setAttribute('min', today);
+        checkIn.addEventListener('change', function() {
+            checkOut.setAttribute('min', this.value);
+            fetchAvailability();
+        });
+        checkOut.addEventListener('change', fetchAvailability);
 
         function fetchAvailability() {
             if (checkIn.value && checkOut.value) {
-                document.getElementById('singleCount').innerText = "...";
-                document.getElementById('doubleCount').innerText = "...";
-                document.getElementById('suiteCount').innerText = "...";
-                document.getElementById('familyCount').innerText = "...";
-
                 fetch('RoomAvailabilityServlet?checkIn=' + checkIn.value + '&checkOut=' + checkOut.value)
                     .then(response => response.json())
                     .then(data => {
@@ -304,20 +307,9 @@
                         document.getElementById('doubleCount').innerText = data.Double;
                         document.getElementById('suiteCount').innerText = data.Suite;
                         document.getElementById('familyCount').innerText = data.Family;
-                    })
-                    .catch(error => console.error('Error fetching availability:', error));
+                    });
             }
         }
-        checkIn.addEventListener('change', function() {
-            checkOut.setAttribute('min', this.value);
-            if(checkOut.value && checkOut.value <= this.value) {
-                let nextDay = new Date(this.value);
-                nextDay.setDate(nextDay.getDate() + 1);
-                checkOut.value = nextDay.toISOString().split('T')[0];
-            }
-            fetchAvailability();
-        });
-        checkOut.addEventListener('change', fetchAvailability);
     });
 </script>
 </body>

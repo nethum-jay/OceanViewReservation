@@ -6,6 +6,8 @@ import javax.mail.internet.*;
 
 public class EmailUtil {
 
+
+    // Method for Sending Booking Confirmation
     public static void sendBookingEmail(int bookingId, String toEmail, String guestName, String roomType, String checkIn, String checkOut, int persons, double totalCost) {
 
         final String fromEmail = "njayanuka189@gmail.com";
@@ -82,11 +84,70 @@ public class EmailUtil {
                             "</body>" +
                             "</html>";
 
-            // Setting HTML content to Email
             message.setContent(htmlContent, "text/html; charset=utf-8");
-
             Transport.send(message);
             System.out.println("HTML Booking confirmation sent to: " + toEmail);
+
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    // Sending Booking Cancellation Confirmation
+    public static void sendCancellationEmail(String toEmail, String guestName, String bookingId) {
+
+        final String fromEmail = "njayanuka189@gmail.com";
+        final String password = "zwxb slaz njgr posc";
+
+        Properties props = new Properties();
+        props.put("mail.smtp.host", "smtp.gmail.com");
+        props.put("mail.smtp.port", "587");
+        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+
+        Session session = Session.getInstance(props, new Authenticator() {
+            protected PasswordAuthentication getPasswordAuthentication() {
+                return new PasswordAuthentication(fromEmail, password);
+            }
+        });
+
+        try {
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(fromEmail));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
+            message.setSubject("Booking Cancellation Confirmed #" + bookingId + " - Ocean View Resort");
+
+            // Cancel Message in HTML format
+            String htmlContent =
+                    "<html>" +
+                            "<body style='font-family: Arial, sans-serif; color: #333;'>" +
+                            "<div style='max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 10px; overflow: hidden;'>" +
+                            "<div style='background-color: #e63946; color: white; padding: 20px; text-align: center;'>" +
+                            "<h1 style='margin: 0;'>Ocean View Resort</h1>" +
+                            "<p style='margin: 5px 0;'>Booking Cancellation</p>" +
+                            "</div>" +
+                            "<div style='padding: 30px;'>" +
+                            "<p>Dear <strong>" + guestName + "</strong>,</p>" +
+                            "<p>As per your request, your reservation has been successfully cancelled by our administrative team.</p>" +
+
+                            "<div style='background-color: #fff5f5; padding: 15px; border-radius: 8px; margin: 25px 0; text-align: center; border: 1px dashed #e63946;'>" +
+                            "<h3 style='margin: 0; color: #e63946;'>Cancelled Booking ID: #" + bookingId + "</h3>" +
+                            "</div>" +
+
+                            "<p style='line-height: 1.6;'>We have removed this reservation from our system. If any advance payments were made, our support team will contact you regarding the refund process shortly.</p>" +
+                            "<p style='margin-top: 20px;'>Thank you for choosing Ocean View Resort. We hope to welcome you back in the future!</p>" +
+                            "</div>" +
+                            "<div style='background-color: #f9f9f9; padding: 15px; text-align: center; font-size: 12px; color: #888;'>" +
+                            "Ocean View Resort, Malabe | Tel: +94 11 234 5678" +
+                            "</div>" +
+                            "</div>" +
+                            "</body>" +
+                            "</html>";
+
+            message.setContent(htmlContent, "text/html; charset=utf-8");
+            Transport.send(message);
+            System.out.println("HTML Cancellation confirmation sent to: " + toEmail);
 
         } catch (MessagingException e) {
             e.printStackTrace();

@@ -96,6 +96,18 @@
         .guide-card ul li { margin-bottom: 8px; line-height: 1.5; }
         .guide-card ul li b { color: var(--text-dark); }
 
+        /* New Contact Info Styling */
+        .contact-info {
+            margin-top: 40px; padding-top: 25px; border-top: 2px dashed #ddd;
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+        }
+        .contact-info h3 { color: var(--primary); font-size: 20px; margin: 0 0 15px 0; }
+        .contact-grid { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; width: 100%; }
+        .contact-item { background: #f8fbff; padding: 15px 20px; border-radius: 10px; border: 1px solid #e0eaf5; display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 180px; }
+        .contact-item i { font-size: 20px; color: var(--secondary); }
+        .contact-item span { font-size: 13px; font-weight: 600; color: var(--text-dark); }
+        .contact-item p { margin: 0; font-size: 13px; color: var(--text-muted); }
+
         footer { text-align: center; padding: 15px; color: rgba(255,255,255,0.9); font-size: 13px; backdrop-filter: blur(8px); background: rgba(0,0,0,0.6); margin-top: auto; }
     </style>
 </head>
@@ -141,8 +153,8 @@
             <h3><i class="fa-solid fa-magnifying-glass"></i> 3. Displaying Booking Details</h3>
             <p>Use this feature to search for an existing booking in the system.</p>
             <ul>
-                <li>Navigate to the <b>Check-in / Out</b> page.</li>
-                <li>Enter the guest's <b>Phone Number</b> in the search box.</li>
+                <li>Navigate to the <b>Search Bookings</b> page.</li>
+                <li>Enter the guest's <b>Booking ID</b> or <b>Phone Number</b> in the search box.</li>
                 <li>Click <b>Search</b> to view full details securely from the database.</li>
             </ul>
         </div>
@@ -152,11 +164,38 @@
             <p>Generate an official bill when a guest is checking out.</p>
             <ul>
                 <li>Go to the <b>Print Bills</b> section.</li>
-                <li>Search using the guest's contact number.</li>
-                <li>The system will automatically calculate the total cost, including a 10% service charge.</li>
+                <li>Search using the Booking ID.</li>
+                <li>The system will automatically calculate the total cost.</li>
                 <li>Click the <b>Print Invoice</b> button to save or hand over a copy to the guest.</li>
             </ul>
         </div>
+
+        <div class="contact-info">
+            <h3><i class="fa-solid fa-headset"></i> Need Further Assistance?</h3>
+            <div class="contact-grid">
+                <div class="contact-item">
+                    <i class="fa-solid fa-hotel"></i>
+                    <span>Resort Name</span>
+                    <p>Ocean View Resort</p>
+                </div>
+                <div class="contact-item">
+                    <i class="fa-solid fa-envelope"></i>
+                    <span>Email Us</span>
+                    <p>info@oceanview.com</p>
+                </div>
+                <div class="contact-item">
+                    <i class="fa-solid fa-phone"></i>
+                    <span>Call Us</span>
+                    <p>+94 11 234 5678</p>
+                </div>
+                <div class="contact-item" style="min-width: 250px;">
+                    <i class="fa-solid fa-map-location-dot"></i>
+                    <span>Location</span>
+                    <p>463/1G, Athurugiriya Road,<br>Malabe, Sri Lanka</p>
+                </div>
+            </div>
+        </div>
+
     </div>
 </main>
 

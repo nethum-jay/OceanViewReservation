@@ -427,11 +427,7 @@ public class ReservationDAO {
         return details;
     }
 
-    // =========================================================================
-    // Cancellation තර්කනය සඳහා අලුත් Methods (Assignment Task)
-    // =========================================================================
-
-    // 1. Customer කෙනෙක් Cancel Request එකක් දැමීම
+    // A customer submits a cancellation request.
     public boolean requestCancellation(int resId) {
         try {
             Connection conn = DBConnection.getInstance().getConnection();
@@ -445,7 +441,7 @@ public class ReservationDAO {
         }
     }
 
-    // 2. Admin විසින් Cancel Request එක අනුමත කිරීම
+    // Admin approves the Cancel Request
     public boolean approveCancellation(int resId) {
         try {
             Connection conn = DBConnection.getInstance().getConnection();
@@ -459,7 +455,7 @@ public class ReservationDAO {
         }
     }
 
-    // 3. Admin සඳහා 'Cancel_Requested' තත්වයේ ඇති සියලුම Bookings ගෙන ඒම
+    // Fetch all Bookings in 'Cancel_Requested' status for Admin
     public List<Map<String, String>> getCancellationRequests() {
         List<Map<String, String>> list = new ArrayList<>();
         try {

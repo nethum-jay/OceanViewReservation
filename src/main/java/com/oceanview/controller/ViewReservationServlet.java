@@ -18,24 +18,24 @@ public class ViewReservationServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
 
-        // ලොග් වී නොමැති නම් ලොගින් පිටුවට යැවීම
+        // If not logged in, send to login page
         if (session == null || session.getAttribute("userRole") == null) {
             response.sendRedirect("login.jsp");
             return;
         }
 
         String role = (String) session.getAttribute("userRole");
-        String loggedUser = (String) session.getAttribute("loggedUser"); // Username එක
+        String loggedUser = (String) session.getAttribute("loggedUser");
 
         ReservationDAO dao = new ReservationDAO();
         List<Map<String, String>> resList = null;
 
         try {
             if ("Customer".equals(role)) {
-                // Customer කෙනෙකු නම්, ඔහුගේ Username එකට අදාළ සියලුම Bookings ගෙන ඒම
+                // If a customer, fetch all bookings related to their username
                 resList = dao.getCustomerReservations(loggedUser);
             } else {
-                // Admin හෝ Staff නම්, Search Box එකෙන් එන අගය (ID හෝ Phone) සෙවීම
+                // If Admin or Staff, search for the value (ID or Phone) from the Search Box
                 String searchValue = request.getParameter("searchValue");
 
                 if (searchValue != null && !searchValue.trim().isEmpty()) {
@@ -54,5 +54,10 @@ public class ViewReservationServlet extends HttpServlet {
         // Sending the List to the JSP Page
         request.setAttribute("resList", resList);
         request.getRequestDispatcher("viewReservation.jsp").forward(request, response);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        doGet(request, response);
     }
 }

@@ -38,6 +38,7 @@ public class RequestCancellationServlet extends HttpServlet {
                 request.setAttribute("errorMessage", "You can only cancel a booking 24 hours prior to the check-in date.");
             }
         }
-        request.getRequestDispatcher("ViewReservationsServlet").forward(request, response);
+
+        request.getRequestDispatcher("ViewReservationServlet").forward(request, response);
     }
 }
