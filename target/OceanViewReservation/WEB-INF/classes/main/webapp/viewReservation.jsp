@@ -66,8 +66,9 @@
         .detail-row .label i { color: var(--secondary); width: 18px; text-align: center; font-size: 15px; }
         .detail-row .value { color: var(--text-muted); font-weight: 500; font-size: 14px; text-align: right; }
 
-        .error-msg, .info-msg { font-weight: 600; font-size: 14px; padding: 15px; border-radius: 8px; text-align: center; width: 100%; max-width: 500px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .error-msg, .info-msg, .success-msg { font-weight: 600; font-size: 14px; padding: 15px; border-radius: 8px; text-align: center; width: 100%; max-width: 500px; margin-bottom: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
         .error-msg { background: #fff5f5; color: var(--danger); border-left: 5px solid var(--danger); }
+        .success-msg { background: #e6fcf5; color: #0f5132; border-left: 5px solid #c3fae8; }
         .info-msg { background: rgba(255,255,255,0.9); color: var(--primary); border-left: 5px solid var(--secondary); }
 
         footer { text-align: center; padding: 15px; color: rgba(255,255,255,0.9); font-size: 13px; backdrop-filter: blur(8px); background: rgba(0,0,0,0.6); margin-top: auto; }
@@ -105,6 +106,10 @@
     </div>
     <% } %>
 
+    <%-- Success/Error Messages from Cancel Request Servlet --%>
+    <% if(request.getAttribute("successMessage") != null) { %>
+    <div class="success-msg"><i class="fa-solid fa-circle-check"></i> <%= request.getAttribute("successMessage") %></div>
+    <% } %>
     <% if(request.getAttribute("errorMessage") != null) { %>
     <div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <%= request.getAttribute("errorMessage") %></div>
     <% } %>
@@ -142,10 +147,38 @@
                 <span class="label"><i class="fa-solid fa-calendar-check"></i> Check-in:</span>
                 <span class="value" style="color: var(--secondary); font-weight: 600;"><%= details.get("checkInDate") %></span>
             </div>
-            <div class="detail-row">
+            <div class="detail-row" style="border-bottom: none;">
                 <span class="label"><i class="fa-solid fa-calendar-xmark"></i> Check-out:</span>
                 <span class="value" style="color: var(--danger); font-weight: 600;"><%= details.get("checkOutDate") %></span>
             </div>
+
+            <%-- Status display and Cancel button --%>
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ddd;">
+                <% String status = details.get("status") != null ? details.get("status") : "Confirmed"; %>
+                <div style="font-size: 13px; font-weight: bold; margin: 0 0 10px; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="color: var(--text-dark);">Status:</span>
+                    <% if(status.equals("Confirmed")) { %>
+                    <span style="color: #0f5132; background: #e6fcf5; padding: 4px 10px; border-radius: 12px;">Confirmed</span>
+                    <% } else if(status.equals("Cancel_Requested")) { %>
+                    <span style="color: #995e00; background: #fff3cd; padding: 4px 10px; border-radius: 12px;">Cancellation Pending</span>
+                    <% } else { %>
+                    <span style="color: #842029; background: #f8d7da; padding: 4px 10px; border-radius: 12px;">Cancelled</span>
+                    <% } %>
+                </div>
+
+                <%-- Only 'Confirmed' status shows the Cancel Request button --%>
+                <% if(isCustomer && status.equals("Confirmed")) { %>
+                <form action="RequestCancellationServlet" method="POST" style="margin: 0; margin-top: 15px;">
+                    <input type="hidden" name="resId" value="<%= details.get("reservationID") %>">
+                    <input type="hidden" name="checkInDate" value="<%= details.get("checkInDate") %>">
+                    <button type="submit" onclick="return confirm('Are you sure you want to request a cancellation?');"
+                            style="background: #e63946; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; width: 100%; transition: 0.3s; box-shadow: 0 4px 10px rgba(230,57,70,0.3);">
+                        <i class="fa-solid fa-ban"></i> Request Cancellation
+                    </button>
+                </form>
+                <% } %>
+            </div>
+
         </div>
         <%
             }
@@ -160,7 +193,7 @@
 </main>
 
 <footer>
-    &copy; 2026 Ocean View Resort - Reservation System. All Rights Reserved.
+    &copy; 2026 Ocean View Resort - Reservation System. All Rights Reserved. <br> Developed for Advanced Programming Assignment.
 </footer>
 
 </body>

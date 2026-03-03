@@ -21,7 +21,8 @@ public class ReservationDAO {
 
         try {
             Connection conn = DBConnection.getInstance().getConnection();
-            String sql = "SELECT roomType, COUNT(*) as bookedCount FROM reservation WHERE checkInDate < ? AND checkOutDate > ? GROUP BY roomType";
+            // Cancel වූ ඒවා ගණන් නොගැනීමට status != 'Cancelled' එකතු කළ හැක
+            String sql = "SELECT roomType, COUNT(*) as bookedCount FROM reservation WHERE checkInDate < ? AND checkOutDate > ? AND (status IS NULL OR status != 'Cancelled') GROUP BY roomType";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, checkOut);
             pstmt.setString(2, checkIn);
@@ -100,7 +101,7 @@ public class ReservationDAO {
         try {
             Connection conn = DBConnection.getInstance().getConnection();
 
-            String sql = "SELECT g.guestID, g.name, g.address, g.contactNo, r.reservationID, r.roomType, r.checkInDate, r.checkOutDate " +
+            String sql = "SELECT g.guestID, g.name, g.address, g.contactNo, r.reservationID, r.roomType, r.checkInDate, r.checkOutDate, r.status " +
                     "FROM guest g JOIN reservation r ON g.guestID = r.guestID " +
                     "WHERE g.contactNo = ?";
 
@@ -117,6 +118,7 @@ public class ReservationDAO {
                 details.put("roomType", rs.getString("roomType"));
                 details.put("checkInDate", rs.getString("checkInDate"));
                 details.put("checkOutDate", rs.getString("checkOutDate"));
+                details.put("status", rs.getString("status"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -132,7 +134,7 @@ public class ReservationDAO {
             String sql = "INSERT INTO reservation (guestID, roomType, checkInDate, checkOutDate) VALUES (?, ?, ?, ?)";
 
             PreparedStatement pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, reservation.getGuestId()); // නිවැරදි කළ ස්ථානය
+            pstmt.setInt(1, reservation.getGuestId());
             pstmt.setString(2, reservation.getRoomType());
             pstmt.setString(3, reservation.getCheckInDate());
             pstmt.setString(4, reservation.getCheckOutDate());
@@ -179,7 +181,7 @@ public class ReservationDAO {
         Map<String, String> details = new HashMap<>();
         try {
             Connection conn = DBConnection.getInstance().getConnection();
-            String sql = "SELECT g.guestID, g.name, g.address, g.contactNo, g.nic, g.email, r.reservationID, r.roomType, r.checkInDate, r.checkOutDate, r.noOfPersons " +
+            String sql = "SELECT g.guestID, g.name, g.address, g.contactNo, g.nic, g.email, r.reservationID, r.roomType, r.checkInDate, r.checkOutDate, r.noOfPersons, r.status " +
                     "FROM guest g JOIN reservation r ON g.guestID = r.guestID " +
                     "WHERE r.reservationID = ?";
             PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -198,6 +200,7 @@ public class ReservationDAO {
                 details.put("checkInDate", rs.getString("checkInDate"));
                 details.put("checkOutDate", rs.getString("checkOutDate"));
                 details.put("noOfPersons", String.valueOf(rs.getInt("noOfPersons")));
+                details.put("status", rs.getString("status"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -222,6 +225,7 @@ public class ReservationDAO {
                 r.setCheckInDate(rs.getString("checkInDate"));
                 r.setCheckOutDate(rs.getString("checkOutDate"));
                 r.setNoOfPersons(rs.getInt("noOfPersons"));
+                // You can add a setStatus() method to Reservation.java if needed later
                 list.add(r);
             }
         } catch (Exception e) {
@@ -284,12 +288,13 @@ public class ReservationDAO {
         }
     }
 
+    // Get reservations for a specific customer (Added r.status)
     public List<Map<String, String>> getCustomerReservations(String username) {
         List<Map<String, String>> list = new ArrayList<>();
         try {
             Connection conn = DBConnection.getInstance().getConnection();
 
-            String sql = "SELECT r.reservationID, g.name, g.nic, g.contactNo, r.roomType, r.noOfPersons, r.checkInDate, r.checkOutDate " +
+            String sql = "SELECT r.reservationID, g.name, g.nic, g.contactNo, r.roomType, r.noOfPersons, r.checkInDate, r.checkOutDate, r.status " +
                     "FROM reservation r " +
                     "JOIN guest g ON r.guestID = g.guestID " +
                     "JOIN users u ON g.contactNo = u.phone " +
@@ -309,6 +314,7 @@ public class ReservationDAO {
                 map.put("noOfPersons", String.valueOf(rs.getInt("noOfPersons")));
                 map.put("checkInDate", rs.getDate("checkInDate").toString());
                 map.put("checkOutDate", rs.getDate("checkOutDate").toString());
+                map.put("status", rs.getString("status")); // New line
                 list.add(map);
             }
         } catch (Exception e) {
@@ -321,7 +327,7 @@ public class ReservationDAO {
         List<Map<String, String>> list = new ArrayList<>();
         try {
             Connection conn = DBConnection.getInstance().getConnection();
-            String sql = "SELECT r.reservationID, g.name, g.nic, g.contactNo, r.roomType, r.noOfPersons, r.checkInDate, r.checkOutDate " +
+            String sql = "SELECT r.reservationID, g.name, g.nic, g.contactNo, r.roomType, r.noOfPersons, r.checkInDate, r.checkOutDate, r.status " +
                     "FROM reservation r " +
                     "JOIN guest g ON r.guestID = g.guestID " +
                     "WHERE r.reservationID = ? OR g.contactNo = ? ORDER BY r.reservationID DESC";
@@ -349,6 +355,7 @@ public class ReservationDAO {
                 map.put("noOfPersons", String.valueOf(rs.getInt("noOfPersons")));
                 map.put("checkInDate", rs.getDate("checkInDate").toString());
                 map.put("checkOutDate", rs.getDate("checkOutDate").toString());
+                map.put("status", rs.getString("status"));
                 list.add(map);
             }
         } catch (Exception e) {
@@ -363,7 +370,7 @@ public class ReservationDAO {
             Connection conn = DBConnection.getInstance().getConnection();
 
             String sql = "SELECT r.reservationID, g.name, g.contactNo, g.email, g.nic, g.address, " +
-                    "r.roomType, r.noOfPersons, r.checkInDate, r.checkOutDate, " +
+                    "r.roomType, r.noOfPersons, r.checkInDate, r.checkOutDate, r.status, " +
                     "DATEDIFF(r.checkOutDate, r.checkInDate) as nights " +
                     "FROM reservation r " +
                     "JOIN guest g ON r.guestID = g.guestID ";
@@ -396,6 +403,7 @@ public class ReservationDAO {
                 details.put("noOfPersons", String.valueOf(rs.getInt("noOfPersons")));
                 details.put("checkInDate", rs.getDate("checkInDate").toString());
                 details.put("checkOutDate", rs.getDate("checkOutDate").toString());
+                details.put("status", rs.getString("status"));
 
                 int nights = rs.getInt("nights");
                 if(nights <= 0) nights = 1;
@@ -417,5 +425,62 @@ public class ReservationDAO {
             e.printStackTrace();
         }
         return details;
+    }
+
+    // =========================================================================
+    // Cancellation තර්කනය සඳහා අලුත් Methods (Assignment Task)
+    // =========================================================================
+
+    // 1. Customer කෙනෙක් Cancel Request එකක් දැමීම
+    public boolean requestCancellation(int resId) {
+        try {
+            Connection conn = DBConnection.getInstance().getConnection();
+            String sql = "UPDATE reservation SET status = 'Cancel_Requested' WHERE reservationID = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, resId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // 2. Admin විසින් Cancel Request එක අනුමත කිරීම
+    public boolean approveCancellation(int resId) {
+        try {
+            Connection conn = DBConnection.getInstance().getConnection();
+            String sql = "UPDATE reservation SET status = 'Cancelled' WHERE reservationID = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setInt(1, resId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // 3. Admin සඳහා 'Cancel_Requested' තත්වයේ ඇති සියලුම Bookings ගෙන ඒම
+    public List<Map<String, String>> getCancellationRequests() {
+        List<Map<String, String>> list = new ArrayList<>();
+        try {
+            Connection conn = DBConnection.getInstance().getConnection();
+            String sql = "SELECT r.reservationID, g.name, r.checkInDate, r.status " +
+                    "FROM reservation r " +
+                    "JOIN guest g ON r.guestID = g.guestID " +
+                    "WHERE r.status = 'Cancel_Requested'";
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Map<String, String> map = new HashMap<>();
+                map.put("reservationID", String.valueOf(rs.getInt("reservationID")));
+                map.put("name", rs.getString("name"));
+                map.put("checkInDate", rs.getString("checkInDate"));
+                map.put("status", rs.getString("status"));
+                list.add(map);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 }
