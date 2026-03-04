@@ -21,7 +21,6 @@ public class ReservationDAO {
 
         try {
             Connection conn = DBConnection.getInstance().getConnection();
-            // Cancel වූ ඒවා ගණන් නොගැනීමට status != 'Cancelled' එකතු කළ හැක
             String sql = "SELECT roomType, COUNT(*) as bookedCount FROM reservation WHERE checkInDate < ? AND checkOutDate > ? AND (status IS NULL OR status != 'Cancelled') GROUP BY roomType";
             PreparedStatement pstmt = conn.prepareStatement(sql);
             pstmt.setString(1, checkOut);

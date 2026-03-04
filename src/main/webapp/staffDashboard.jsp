@@ -31,7 +31,7 @@
         main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; animation: fadeIn 0.8s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Dashboard Wrapper පළල මඳක් වැඩි කර ඇත කාඩ් 4 ලස්සනට පෙන්වීමට */
+        /* Dashboard Wrapper width has been increased slightly to display the 4 cards nicely */
         .dashboard-wrapper { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); padding: 40px; border-radius: 20px; width: 100%; max-width: 1000px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.6); }
 
         .welcome-header { text-align: center; margin-bottom: 40px; }
@@ -39,7 +39,7 @@
         .welcome-header p { color: var(--text-muted); font-size: 15px; margin: 0; }
         .user-badge { display: inline-block; background: #e0fbfc; color: var(--primary); padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: 600; margin-top: 10px; border: 1px solid var(--secondary); }
 
-        /* Grid එක Cards 4ක් සඳහා සකස් කර ඇත */
+        /* Grid is set up for 4 cards */
         .grid-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; justify-content: center; }
 
         .card { background: var(--white); padding: 30px 15px; border-radius: 16px; text-align: center; text-decoration: none; color: var(--text-dark); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid #eef2f5; box-shadow: 0 5px 15px rgba(0,0,0,0.04); display: flex; flex-direction: column; align-items: center; }

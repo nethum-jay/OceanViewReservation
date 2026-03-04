@@ -9,7 +9,7 @@ public class DBConnection {
     private static DBConnection instance;
     private Connection connection;
 
-    // 2. Private constructor
+    // Private constructor
     private String url = "jdbc:mysql://localhost:3306/oceanview_db";
     private String username = "root";
     private String password = "root";
