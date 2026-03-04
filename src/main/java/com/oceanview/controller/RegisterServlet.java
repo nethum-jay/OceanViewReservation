@@ -18,38 +18,45 @@ public class RegisterServlet extends HttpServlet {
         String password = request.getParameter("password");
         String phone = request.getParameter("phone");
 
-        UserDAO userDAO = new UserDAO();
+        // Server-side validation to prevent empty submissions
+        if (username == null || username.trim().isEmpty() ||
+                password == null || password.trim().isEmpty() ||
+                phone == null || phone.trim().isEmpty()) {
 
-        // Checks if this phone number is already taken (not the username)
-        if (userDAO.isUserExists(phone)) {
-            // If there is, an error message is sent (the data is not saved to the database).
-            request.setAttribute("errorMessage", "Registration Failed! This Phone Number is already registered.");
+            request.setAttribute("errorMessage", "All fields are required. Please check your inputs.");
             request.getRequestDispatcher("register.jsp").forward(request, response);
             return;
         }
 
-        // A new number is entered into the database.
-        User newUser = new User();
-        newUser.setUsername(username);
-        newUser.setPassword(password);
-        newUser.setRole("Customer");
-        newUser.setPhone(phone);
-
-        boolean isRegistered = false;
         try {
-            isRegistered = userDAO.registerUser(newUser);
+            UserDAO userDAO = new UserDAO();
+
+            // Check if the phone number is already registered
+            if (userDAO.isUserExists(phone.trim())) {
+                request.setAttribute("errorMessage", "Registration Failed! This Phone Number is already registered.");
+            } else {
+
+                // Register the new user
+                User newUser = new User();
+                newUser.setUsername(username.trim());
+                newUser.setPassword(password); // Passwords are usually not trimmed to keep exact user input
+                newUser.setRole("Customer");
+                newUser.setPhone(phone.trim());
+
+                boolean isRegistered = userDAO.registerUser(newUser);
+
+                if (isRegistered) {
+                    request.setAttribute("successMessage", "Registration Successful! You can now login to your account.");
+                } else {
+                    request.setAttribute("errorMessage", "An error occurred during registration. Please try again.");
+                }
+            }
         } catch (Exception e) {
-            request.setAttribute("errorMessage", "Database Error: Please try again.");
-            request.getRequestDispatcher("register.jsp").forward(request, response);
-            return;
+            e.printStackTrace();
+            request.setAttribute("errorMessage", "Database Error: Please try again later.");
         }
 
-        if (isRegistered) {
-            request.setAttribute("successMessage", "Registration Successful! You can now login to your account.");
-        } else {
-            request.setAttribute("errorMessage", "An error occurred during registration. Please try again.");
-        }
-
+        // Centralized forward to the JSP page
         request.getRequestDispatcher("register.jsp").forward(request, response);
     }
 }

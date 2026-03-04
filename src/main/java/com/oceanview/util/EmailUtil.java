@@ -6,32 +6,37 @@ import javax.mail.internet.*;
 
 public class EmailUtil {
 
+    // Centralized credentials - ideally, these should be stored in environment variables or properties files for security
+    private static final String FROM_EMAIL = "njayanuka189@gmail.com";
+    private static final String APP_PASSWORD = "zwxb slaz njgr posc";
 
-    // Method for Sending Booking Confirmation
-    public static void sendBookingEmail(int bookingId, String toEmail, String guestName, String roomType, String checkIn, String checkOut, int persons, double totalCost) {
-
-        final String fromEmail = "njayanuka189@gmail.com";
-        final String password = "zwxb slaz njgr posc";
-
+    /**
+     * Reusable method to create a JavaMail session, reducing code duplication.
+     */
+    private static Session createEmailSession() {
         Properties props = new Properties();
         props.put("mail.smtp.host", "smtp.gmail.com");
         props.put("mail.smtp.port", "587");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
 
-        Session session = Session.getInstance(props, new Authenticator() {
+        return Session.getInstance(props, new Authenticator() {
+            @Override
             protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(fromEmail, password);
+                return new PasswordAuthentication(FROM_EMAIL, APP_PASSWORD);
             }
         });
+    }
 
+    public static void sendBookingEmail(int bookingId, String toEmail, String guestName, String roomType, String checkIn, String checkOut, int persons, double totalCost) {
         try {
+            Session session = createEmailSession();
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(fromEmail));
+
+            message.setFrom(new InternetAddress(FROM_EMAIL));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
             message.setSubject("Booking Confirmation #" + bookingId + " - Ocean View Resort");
 
-            // Creating an HTML E-Bill
             String htmlContent =
                     "<html>" +
                             "<body style='font-family: Arial, sans-serif; color: #333;'>" +
@@ -86,39 +91,22 @@ public class EmailUtil {
 
             message.setContent(htmlContent, "text/html; charset=utf-8");
             Transport.send(message);
-            System.out.println("HTML Booking confirmation sent to: " + toEmail);
+            System.out.println("Booking confirmation email sent to: " + toEmail);
 
         } catch (MessagingException e) {
             e.printStackTrace();
         }
     }
 
-
-    // Sending Booking Cancellation Confirmation
     public static void sendCancellationEmail(String toEmail, String guestName, String bookingId) {
-
-        final String fromEmail = "njayanuka189@gmail.com";
-        final String password = "zwxb slaz njgr posc";
-
-        Properties props = new Properties();
-        props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.port", "587");
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-
-        Session session = Session.getInstance(props, new Authenticator() {
-            protected PasswordAuthentication getPasswordAuthentication() {
-                return new PasswordAuthentication(fromEmail, password);
-            }
-        });
-
         try {
+            Session session = createEmailSession();
             Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(fromEmail));
+
+            message.setFrom(new InternetAddress(FROM_EMAIL));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(toEmail));
             message.setSubject("Booking Cancellation Confirmed #" + bookingId + " - Ocean View Resort");
 
-            // Cancel Message in HTML format
             String htmlContent =
                     "<html>" +
                             "<body style='font-family: Arial, sans-serif; color: #333;'>" +
@@ -147,7 +135,7 @@ public class EmailUtil {
 
             message.setContent(htmlContent, "text/html; charset=utf-8");
             Transport.send(message);
-            System.out.println("HTML Cancellation confirmation sent to: " + toEmail);
+            System.out.println("Cancellation confirmation email sent to: " + toEmail);
 
         } catch (MessagingException e) {
             e.printStackTrace();

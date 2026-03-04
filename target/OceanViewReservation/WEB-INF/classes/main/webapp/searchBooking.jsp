@@ -1,12 +1,28 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.Map" %>
 <%
-    String dashboardLink = "customerDashboard.jsp";
+    // Security measures: Prevent browser from caching this page after logout
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    response.setHeader("Pragma", "no-cache");
+    response.setDateHeader("Expires", 0);
+
     String role = (String) session.getAttribute("userRole");
+
+    // Access control: Ensure user is logged in before accessing this page
+    if (role == null) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
+
+    String dashboardLink = "customerDashboard.jsp";
     boolean isCustomer = "Customer".equals(role);
 
-    if ("Admin".equals(role)) dashboardLink = "adminDashboard.jsp";
-    else if ("Staff".equals(role)) dashboardLink = "staffDashboard.jsp";
+    // Determine correct dashboard link
+    if ("Admin".equals(role)) {
+        dashboardLink = "adminDashboard.jsp";
+    } else if ("Staff".equals(role)) {
+        dashboardLink = "staffDashboard.jsp";
+    }
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -20,16 +36,17 @@
         body { font-family: 'Poppins', sans-serif; background: url('https://images.unsplash.com/photo-1618140052121-39fc6db33972?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed; background-size: cover; margin: 0; min-height: 100vh; display: flex; flex-direction: column;}
         .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); z-index: -1; }
         header { background: rgba(255, 255, 255, 0.9); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; }
-        .back-btn { background: var(--primary); color: white; padding: 8px 18px; border-radius: 25px; text-decoration: none; font-weight: 500; font-size: 14px;}
+        .back-btn { background: var(--primary); color: white; padding: 8px 18px; border-radius: 25px; text-decoration: none; font-weight: 500; font-size: 14px; transition: 0.3s;}
+        .back-btn:hover { background: var(--secondary); transform: translateX(-3px); }
         .container { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 40px 20px; animation: fadeIn 0.5s; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 
         .search-box { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); width: 100%; max-width: 500px; text-align: center; margin-bottom: 30px; }
-        .search-box input { width: 65%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; font-family: 'Poppins'; outline: none; margin-right: 5px;}
+        .search-box input { width: 65%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 15px; font-family: 'Poppins'; outline: none; margin-right: 5px; transition: 0.3s;}
+        .search-box input:focus { border-color: var(--secondary); }
         .search-box button { width: 28%; padding: 12px; background: var(--primary); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s;}
         .search-box button:hover { background: var(--secondary); }
 
-        /* Bill Card */
         .bill-card { background: white; padding: 40px; border-radius: 15px; width: 100%; max-width: 700px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); position: relative; }
         .bill-header { text-align: center; border-bottom: 2px dashed #eee; padding-bottom: 20px; margin-bottom: 20px; }
         .bill-header h2 { color: var(--primary); margin: 0; font-size: 26px; }
@@ -37,6 +54,7 @@
         .bill-details strong { color: var(--primary); }
         .price-section { margin-top: 30px; background: var(--bg-light); padding: 20px; border-radius: 10px; text-align: right; border-left: 5px solid var(--secondary);}
         .price-section h3 { margin: 0; color: #e63946; font-size: 24px; }
+
         .print-btn { display: block; width: 200px; margin: 30px auto 0; text-align: center; background: var(--secondary); color: white; padding: 12px; border-radius: 8px; text-decoration: none; font-weight: 600; transition: 0.3s; }
         .print-btn:hover { background: var(--primary); transform: translateY(-2px); }
 
@@ -62,17 +80,21 @@
         <p style="font-size: 13px; color: #666; margin-bottom: 15px;">
             <%= isCustomer ? "Enter <strong>your</strong> Booking ID to print the bill." : "Enter Guest <strong>Booking ID</strong> to generate the bill." %>
         </p>
-        <form action="SearchBookingServlet" method="GET">
-            <input type="text" name="bookingId" placeholder="e.g. 5" required>
+
+        <form action="SearchBookingServlet" method="GET" autocomplete="off">
+            <input type="text" name="bookingId" placeholder="e.g. 5" pattern="[0-9]+" title="Please enter a valid numeric Booking ID" required>
             <button type="submit"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
         </form>
+
         <% if(request.getAttribute("errorMessage") != null) { %>
         <p style="color: red; font-size: 13px; margin-top: 15px; font-weight: 600;"><i class="fa-solid fa-triangle-exclamation"></i> <%= request.getAttribute("errorMessage") %></p>
         <% } %>
     </div>
 
     <%
+        @SuppressWarnings("unchecked")
         Map<String, String> details = (Map<String, String>) request.getAttribute("bookingDetails");
+
         if(details != null) {
     %>
     <div class="bill-card">
@@ -104,7 +126,7 @@
             <h3>LKR <%= details.get("totalAmount") %></h3>
         </div>
 
-        <a href="#" class="print-btn" onclick="window.print();"><i class="fa-solid fa-print"></i> Print Invoice</a>
+        <a href="#" class="print-btn" onclick="window.print(); return false;"><i class="fa-solid fa-print"></i> Print Invoice</a>
     </div>
     <% } %>
 </div>

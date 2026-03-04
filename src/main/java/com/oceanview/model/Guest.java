@@ -1,14 +1,19 @@
 package com.oceanview.model;
 
 public class Guest {
+
+    // Represents the Primary Key in the database
+    private int guestId;
     private String name;
     private String nic;
     private String email;
     private String address;
     private String contactNo;
 
+    // Default constructor
     public Guest() {}
 
+    // Constructor for creating a new Guest (without ID, mainly for database insertion)
     public Guest(String name, String nic, String email, String address, String contactNo) {
         this.name = name;
         this.nic = nic;
@@ -16,6 +21,10 @@ public class Guest {
         this.address = address;
         this.contactNo = contactNo;
     }
+
+    // Getters and Setters
+    public int getGuestId() { return guestId; }
+    public void setGuestId(int guestId) { this.guestId = guestId; }
 
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }

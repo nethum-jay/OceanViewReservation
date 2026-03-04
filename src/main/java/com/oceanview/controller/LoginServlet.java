@@ -16,25 +16,34 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        // Retrieving data from a form
         String uname = request.getParameter("username");
         String pass = request.getParameter("password");
 
-        // Comparing with Database via UserDAO
+        // Server-side validation to prevent unnecessary database calls for empty inputs
+        if (uname == null || uname.trim().isEmpty() || pass == null || pass.trim().isEmpty()) {
+            request.setAttribute("errorMessage", "Username and Password cannot be empty.");
+            request.getRequestDispatcher("login.jsp").forward(request, response);
+            return;
+        }
+
         UserDAO dao = new UserDAO();
-        User user = dao.authenticateUser(uname, pass);
+        // Trimming username to avoid accidental whitespace issues
+        User user = dao.authenticateUser(uname.trim(), pass);
 
         if (user != null) {
-            // If the login is successful, set the session.
-            HttpSession session = request.getSession();
+            // Prevent Session Fixation by invalidating the old session before creating a new one (Security Best Practice)
+            HttpSession oldSession = request.getSession(false);
+            if (oldSession != null) {
+                oldSession.invalidate();
+            }
+            HttpSession session = request.getSession(true);
+
+            // Set essential user details in the session
             session.setAttribute("loggedUser", user.getUsername());
             session.setAttribute("userRole", user.getRole());
-
-            // To prevent "null" from showing up in the Dashboard, the User ID must be entered like this.
             session.setAttribute("userId", user.getId());
 
             // Redirect to the relevant Dashboard according to the role
-            // Using 'equalsIgnoreCase' avoids errors caused by case sensitivity.
             if ("Admin".equalsIgnoreCase(user.getRole())) {
                 response.sendRedirect("adminDashboard.jsp");
             } else if ("Staff".equalsIgnoreCase(user.getRole())) {
@@ -43,7 +52,7 @@ public class LoginServlet extends HttpServlet {
                 response.sendRedirect("customerDashboard.jsp");
             }
         } else {
-            // Create an Error Message and Forward it to the Login Page
+            // Invalid credentials handling
             request.setAttribute("errorMessage", "Invalid Username or Password. Please try again!");
             request.getRequestDispatcher("login.jsp").forward(request, response);
         }

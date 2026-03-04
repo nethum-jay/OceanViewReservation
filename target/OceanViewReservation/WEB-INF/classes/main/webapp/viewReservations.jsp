@@ -1,16 +1,21 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List, com.oceanview.model.Reservation" %>
 <%
-    // Ensure only Staff or Admin can access
+    // Security measures: Prevent browser from caching this page after logout
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    response.setHeader("Pragma", "no-cache");
+    response.setDateHeader("Expires", 0);
+
+    // Access control: Ensure only Staff or Admin can access
     String role = (String) session.getAttribute("userRole");
-    if (role == null || (!role.equals("Staff") && !role.equals("Admin"))) {
+    if (role == null || (!"Staff".equals(role) && !"Admin".equals(role))) {
         response.sendRedirect("login.jsp");
         return;
     }
 
-    String dashboardLink = role.equals("Admin") ? "adminDashboard.jsp" : "staffDashboard.jsp";
+    String dashboardLink = "Admin".equals(role) ? "adminDashboard.jsp" : "staffDashboard.jsp";
 
-    // Check if the current user is an Admin (to show/hide Edit button)
+    // Check if the current user is an Admin (to conditionally show the Edit button)
     boolean isAdmin = "Admin".equals(role);
 %>
 <!DOCTYPE html>
@@ -25,7 +30,7 @@
         body { font-family: 'Poppins', sans-serif; margin: 0; background: url('https://images.unsplash.com/photo-1618140052121-39fc6db33972?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed; background-size: cover; min-height: 100vh; display: flex; flex-direction: column; }
         .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.45); z-index: -1; }
 
-        header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; }
+        header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
         .logo-sec { display: flex; align-items: center; gap: 12px; color: var(--primary); text-decoration: none; }
         .logo-sec img { height: 42px; }
         .logo-sec h1 { font-size: 24px; margin: 0; font-weight: 700; }
@@ -53,7 +58,7 @@
         .alert-success { background: #e6fcf5; color: #0f5132; border: 1px solid #c3fae8; }
         .alert-error { background: #fff5f5; color: #c92a2a; border: 1px solid #ffe3e3; }
 
-        footer { text-align: center; padding: 20px; color: rgba(255,255,255,0.9); font-size: 12px; margin-top: auto; }
+        footer { text-align: center; padding: 20px; color: rgba(255,255,255,0.9); font-size: 12px; margin-top: auto; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); }
     </style>
 </head>
 <body>
@@ -90,7 +95,9 @@
             </thead>
             <tbody>
             <%
+                @SuppressWarnings("unchecked")
                 List<Reservation> resList = (List<Reservation>) request.getAttribute("reservationList");
+
                 if (resList != null && !resList.isEmpty()) {
                     for (Reservation r : resList) {
             %>

@@ -27,14 +27,17 @@ public class AddNewReservationServlet extends HttpServlet {
             String contactNo = request.getParameter("contactNo");
 
             String roomType = request.getParameter("roomType");
-            int noOfPersons = Integer.parseInt(request.getParameter("noOfPersons"));
+
+            // To prevent an error from occurring if a value is entered incorrectly or is empty.
+            String personsStr = request.getParameter("noOfPersons");
+            int noOfPersons = (personsStr != null && !personsStr.trim().isEmpty()) ? Integer.parseInt(personsStr.trim()) : 1;
+
             String checkInDate = request.getParameter("checkInDate");
             String checkOutDate = request.getParameter("checkOutDate");
 
-            // Calculate price
-            double ratePerNight = 0;
-            if ("Single".equalsIgnoreCase(roomType)) ratePerNight = 10000.00;
-            else if ("Double".equalsIgnoreCase(roomType)) ratePerNight = 15000.00;
+            // Price calculation
+            double ratePerNight = 10000.00; // Default price (Single)
+            if ("Double".equalsIgnoreCase(roomType)) ratePerNight = 15000.00;
             else if ("Family".equalsIgnoreCase(roomType)) ratePerNight = 25000.00;
             else if ("Suite".equalsIgnoreCase(roomType)) ratePerNight = 30000.00;
 
@@ -42,12 +45,16 @@ public class AddNewReservationServlet extends HttpServlet {
             LocalDate d2 = LocalDate.parse(checkOutDate);
             long nights = ChronoUnit.DAYS.between(d1, d2);
             if (nights <= 0) nights = 1;
-            double totalCost = nights * ratePerNight;
 
+            // The thread is set to final for submission inside.
+            final double totalCost = nights * ratePerNight;
+
+            // Saving the guest
             GuestDAO guestDAO = new GuestDAO();
             int guestId = guestDAO.saveOrUpdateGuest(name, nic, email, address, contactNo);
 
             if (guestId > 0) {
+                // Saving the booking
                 Reservation res = new Reservation();
                 res.setGuestId(guestId);
                 res.setRoomType(roomType);
@@ -59,20 +66,29 @@ public class AddNewReservationServlet extends HttpServlet {
                 int generatedResId = resDAO.addReservation(res);
 
                 if (generatedResId > 0) {
-                    EmailUtil.sendBookingEmail(generatedResId, email, name, roomType, checkInDate, checkOutDate, noOfPersons, totalCost);
+
+                    new Thread(() -> {
+                        try {
+                            EmailUtil.sendBookingEmail(generatedResId, email, name, roomType, checkInDate, checkOutDate, noOfPersons, totalCost);
+                        } catch (Exception e) {
+                            System.out.println("Background Email Error: " + e.getMessage());
+                        }
+                    }).start();
 
                     request.setAttribute("successMessage", "Reservation confirmed! Your Booking ID is: #" + generatedResId);
                     request.setAttribute("generatedResId", generatedResId);
                 } else {
-                    request.setAttribute("errorMessage", "Failed to confirm reservation.");
+                    request.setAttribute("errorMessage", "Failed to confirm reservation. Database error.");
                 }
             } else {
                 request.setAttribute("errorMessage", "Failed to save Guest Details.");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("errorMessage", "Error: " + e.getMessage());
+            // Providing a general message as it is not safe to show System Errors to the customer
+            request.setAttribute("errorMessage", "An error occurred! Please check your details and try again.");
         }
+
         request.getRequestDispatcher("booking.jsp").forward(request, response);
     }
 }

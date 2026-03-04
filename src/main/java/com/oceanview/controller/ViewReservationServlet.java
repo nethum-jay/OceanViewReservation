@@ -18,7 +18,7 @@ public class ViewReservationServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession(false);
 
-        // If not logged in, send to login page
+        // Access control: Ensure user is logged in
         if (session == null || session.getAttribute("userRole") == null) {
             response.sendRedirect("login.jsp");
             return;
@@ -27,15 +27,16 @@ public class ViewReservationServlet extends HttpServlet {
         String role = (String) session.getAttribute("userRole");
         String loggedUser = (String) session.getAttribute("loggedUser");
 
-        ReservationDAO dao = new ReservationDAO();
         List<Map<String, String>> resList = null;
 
         try {
+            ReservationDAO dao = new ReservationDAO();
+
             if ("Customer".equals(role)) {
-                // If a customer, fetch all bookings related to their username
+                // Fetch all bookings for the logged-in customer
                 resList = dao.getCustomerReservations(loggedUser);
             } else {
-                // If Admin or Staff, search for the value (ID or Phone) from the Search Box
+                // Admin or Staff: Search by Booking ID or Phone Number
                 String searchValue = request.getParameter("searchValue");
 
                 if (searchValue != null && !searchValue.trim().isEmpty()) {
@@ -51,13 +52,13 @@ public class ViewReservationServlet extends HttpServlet {
             request.setAttribute("errorMessage", "An error occurred while fetching reservations.");
         }
 
-        // Sending the List to the JSP Page
         request.setAttribute("resList", resList);
         request.getRequestDispatcher("viewReservation.jsp").forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // Forward POST requests (e.g., from Cancellation) to doGet to handle seamlessly
         doGet(request, response);
     }
 }

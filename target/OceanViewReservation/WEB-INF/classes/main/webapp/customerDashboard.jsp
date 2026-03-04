@@ -1,9 +1,14 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
+    // Security measures: Prevent browser from caching this page after logout
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    response.setHeader("Pragma", "no-cache");
+    response.setDateHeader("Expires", 0);
+
     String loggedUser = (String) session.getAttribute("loggedUser");
     String userRole = (String) session.getAttribute("userRole");
 
-    // Security Check Customer only login
+    // Access control: Ensure only Customers can view this dashboard
     if (userRole == null || !"Customer".equals(userRole)) {
         response.sendRedirect("login.jsp?error=Please Login First");
         return;

@@ -1,9 +1,14 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
+    // Security measures: Prevent browser from caching this page after logout
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    response.setHeader("Pragma", "no-cache");
+    response.setDateHeader("Expires", 0);
+
     String loggedUser = (String) session.getAttribute("loggedUser");
     String userRole = (String) session.getAttribute("userRole");
 
-    // Security Check Staff
+    // Access control: Ensure only Staff can access this dashboard
     if (userRole == null || !"Staff".equals(userRole)) {
         response.sendRedirect("login.jsp?error=Unauthorized Access!");
         return;
@@ -20,18 +25,20 @@
         :root { --primary: #005f73; --secondary: #0a9396; --accent: #94d2bd; --text-dark: #1a1a1a; --text-muted: #555; --white: #ffffff; --danger: #e63946; }
         body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background: url('https://images.unsplash.com/photo-1618140052121-39fc6db33972?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed; background-size: cover; color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; }
         .overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.4); z-index: -1; }
+
         header { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); padding: 15px 40px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
         .logo-sec { display: flex; align-items: center; gap: 15px; }
         .logo-sec img { height: 45px; }
         .logo-sec h1 { margin: 0; font-size: 24px; color: var(--primary); font-weight: 700; }
         .header-buttons { display: flex; gap: 15px; align-items: center; }
+
         .nav-btn { padding: 10px 20px; border-radius: 30px; text-decoration: none; font-weight: 600; font-size: 14px; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; }
         .logout-btn { background: var(--danger); color: white; }
         .logout-btn:hover { background: #d90429; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(230,57,70,0.4); }
+
         main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; animation: fadeIn 0.8s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Dashboard Wrapper width has been increased slightly to display the 4 cards nicely */
         .dashboard-wrapper { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); padding: 40px; border-radius: 20px; width: 100%; max-width: 1000px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.6); }
 
         .welcome-header { text-align: center; margin-bottom: 40px; }
@@ -39,7 +46,6 @@
         .welcome-header p { color: var(--text-muted); font-size: 15px; margin: 0; }
         .user-badge { display: inline-block; background: #e0fbfc; color: var(--primary); padding: 5px 15px; border-radius: 20px; font-size: 14px; font-weight: 600; margin-top: 10px; border: 1px solid var(--secondary); }
 
-        /* Grid is set up for 4 cards */
         .grid-container { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; justify-content: center; }
 
         .card { background: var(--white); padding: 30px 15px; border-radius: 16px; text-align: center; text-decoration: none; color: var(--text-dark); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); border: 1px solid #eef2f5; box-shadow: 0 5px 15px rgba(0,0,0,0.04); display: flex; flex-direction: column; align-items: center; }
@@ -48,6 +54,7 @@
         .card:hover .icon-box { transform: scale(1.1) rotate(5deg); }
         .card h3 { font-size: 16px; font-weight: 600; margin-bottom: 10px; margin-top: 0; }
         .card p { font-size: 12px; color: var(--text-muted); line-height: 1.5; margin: 0; }
+
         footer { text-align: center; padding: 20px; color: rgba(255,255,255,0.9); font-size: 13px; backdrop-filter: blur(8px); background: rgba(0,0,0,0.6); margin-top: auto; }
 
         @media (max-width: 900px) {

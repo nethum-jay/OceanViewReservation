@@ -1,9 +1,15 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List, com.oceanview.model.User" %>
 <%
-    // Security measures Redirect to login page if not logged in
+    // Security measures: Prevent browser from caching this page after logout
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    response.setHeader("Pragma", "no-cache");
+    response.setDateHeader("Expires", 0);
+
     String loggedUser = (String) session.getAttribute("loggedUser");
     String role = (String) session.getAttribute("userRole");
+
+    // Access control: Ensure only Admin can view and manage users
     if (loggedUser == null || !"Admin".equals(role)) {
         response.sendRedirect("login.jsp");
         return;
@@ -73,7 +79,9 @@
             </thead>
             <tbody>
             <%
+                @SuppressWarnings("unchecked")
                 List<User> users = (List<User>) request.getAttribute("userList");
+
                 if (users != null && !users.isEmpty()) {
                     for (User u : users) {
             %>
@@ -81,7 +89,7 @@
                 <td style="font-weight: 700; color: var(--primary); font-size: 16px;">#<%= u.getId() %></td>
                 <td style="font-weight: 500;"><i class="fa-solid fa-user" style="color: var(--secondary); margin-right: 5px;"></i> <%= u.getUsername() %></td>
                 <td><span class="role-badge"><%= u.getRole() %></span></td>
-                <td><i class="fa-solid fa-phone" style="color: #888; margin-right: 5px;"></i> <%= (u.getPhone() != null && !u.getPhone().equals("null")) ? u.getPhone() : "<span style='color:#ccc;'>Not Set</span>" %></td>
+                <td><i class="fa-solid fa-phone" style="color: #888; margin-right: 5px;"></i> <%= (u.getPhone() != null && !u.getPhone().equals("null") && !u.getPhone().equals("Not Set")) ? u.getPhone() : "<span style='color:#ccc;'>Not Set</span>" %></td>
 
                 <td style="text-align: center;" class="action-links">
                     <a href="LoadUserForEditServlet?id=<%= u.getId() %>" title="Edit User" style="color: var(--primary);">

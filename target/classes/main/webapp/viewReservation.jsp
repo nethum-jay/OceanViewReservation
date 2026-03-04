@@ -1,8 +1,14 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List, java.util.Map" %>
-
 <%
+    // Security measures: Prevent browser from caching this page after logout
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    response.setHeader("Pragma", "no-cache");
+    response.setDateHeader("Expires", 0);
+
     String userRole = (String) session.getAttribute("userRole");
+
+    // Access control: Ensure user is logged in
     if (userRole == null) {
         response.sendRedirect("login.jsp");
         return;
@@ -17,16 +23,13 @@
         dashboardLink = "adminDashboard.jsp";
     }
 %>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Ocean View Resort - Search Reservation</title>
-
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
     <style>
         :root { --primary: #005f73; --secondary: #0a9396; --text-dark: #1a1a1a; --text-muted: #555; --danger: #e63946; --bg-card: rgba(255, 255, 255, 0.95); }
         body { font-family: 'Poppins', sans-serif; margin: 0; padding: 0; background: url('https://images.unsplash.com/photo-1618140052121-39fc6db33972?q=80&w=2070&auto=format&fit=crop') no-repeat center center fixed; background-size: cover; color: var(--text-dark); min-height: 100vh; display: flex; flex-direction: column; }
@@ -50,8 +53,6 @@
         .search-container button:hover { box-shadow: 0 5px 15px rgba(0,95,115,0.3); transform: translateY(-2px); }
 
         .list-header { color: white; text-align: center; margin-bottom: 25px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
-
-        /* Grid for Multiple Bookings */
         .bookings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 25px; width: 100%; max-width: 1100px; justify-content: center; }
 
         .details-card { background: var(--bg-card); backdrop-filter: blur(15px); padding: 25px; border-radius: 15px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.6); border-top: 5px solid var(--secondary); transition: 0.3s; }
@@ -94,7 +95,7 @@
             <i class="fa-solid fa-magnifying-glass"></i> Search Guest Bookings
         </h3>
         <p style="margin: 0 0 15px; font-size: 13px; color: #666;">Enter <strong>Booking ID</strong> OR <strong>Phone Number</strong></p>
-        <form action="ViewReservationServlet" method="GET">
+        <form action="ViewReservationServlet" method="GET" autocomplete="off">
             <input type="text" name="searchValue" placeholder="Booking ID or Phone..." required>
             <button type="submit">Search</button>
         </form>
@@ -116,6 +117,7 @@
 
     <div class="bookings-grid">
         <%
+            @SuppressWarnings("unchecked")
             List<Map<String, String>> resList = (List<Map<String, String>>) request.getAttribute("resList");
 
             if (resList != null && !resList.isEmpty()) {
@@ -152,22 +154,21 @@
                 <span class="value" style="color: var(--danger); font-weight: 600;"><%= details.get("checkOutDate") %></span>
             </div>
 
-            <%-- Status display and Cancel button --%>
             <div style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ddd;">
                 <% String status = details.get("status") != null ? details.get("status") : "Confirmed"; %>
                 <div style="font-size: 13px; font-weight: bold; margin: 0 0 10px; display: flex; justify-content: space-between; align-items: center;">
                     <span style="color: var(--text-dark);">Status:</span>
-                    <% if(status.equals("Confirmed")) { %>
+                    <% if("Confirmed".equals(status)) { %>
                     <span style="color: #0f5132; background: #e6fcf5; padding: 4px 10px; border-radius: 12px;">Confirmed</span>
-                    <% } else if(status.equals("Cancel_Requested")) { %>
+                    <% } else if("Cancel_Requested".equals(status)) { %>
                     <span style="color: #995e00; background: #fff3cd; padding: 4px 10px; border-radius: 12px;">Cancellation Pending</span>
                     <% } else { %>
                     <span style="color: #842029; background: #f8d7da; padding: 4px 10px; border-radius: 12px;">Cancelled</span>
                     <% } %>
                 </div>
 
-                <%-- Only 'Confirmed' status shows the Cancel Request button --%>
-                <% if(isCustomer && status.equals("Confirmed")) { %>
+                <%-- Only 'Confirmed' status shows the Cancel Request button for Customers --%>
+                <% if(isCustomer && "Confirmed".equals(status)) { %>
                 <form action="RequestCancellationServlet" method="POST" style="margin: 0; margin-top: 15px;">
                     <input type="hidden" name="resId" value="<%= details.get("reservationID") %>">
                     <input type="hidden" name="checkInDate" value="<%= details.get("checkInDate") %>">

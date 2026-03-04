@@ -11,17 +11,23 @@ import java.io.IOException;
 @WebServlet("/LogoutServlet")
 public class LogoutServlet extends HttpServlet {
 
+    @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
-        // Get the existing Session (without creating a new one)
+        // Prevent caching to ensure the user cannot use the 'Back' button after logging out
+        response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+        response.setHeader("Pragma", "no-cache");
+        response.setDateHeader("Expires", 0);
+
+        // Get the existing Session without creating a new one
         HttpSession session = request.getSession(false);
 
         if (session != null) {
-            // Destroy the session completely (Logout)
+            // Destroy the session completely
             session.invalidate();
         }
 
-        // Then redirect to the exit.jsp page showing that it has been safely logged out
+        // Redirect to the exit/login page
         response.sendRedirect("exit.jsp");
     }
 }

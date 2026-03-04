@@ -1,8 +1,14 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List, java.util.Map" %>
 <%
+    // Security measures: Prevent browser from caching this page after logout
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    response.setHeader("Pragma", "no-cache");
+    response.setDateHeader("Expires", 0);
+
+    // Access control: Ensure only Admin can view cancellation requests
     String role = (String) session.getAttribute("userRole");
-    if (role == null || !role.equals("Admin")) {
+    if (role == null || !"Admin".equals(role)) {
         response.sendRedirect("login.jsp");
         return;
     }
@@ -67,7 +73,9 @@
             </thead>
             <tbody>
             <%
+                @SuppressWarnings("unchecked")
                 List<Map<String, String>> cancelList = (List<Map<String, String>>) request.getAttribute("cancelList");
+
                 if (cancelList != null && !cancelList.isEmpty()) {
                     for (Map<String, String> req : cancelList) {
             %>

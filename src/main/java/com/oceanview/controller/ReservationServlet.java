@@ -10,32 +10,40 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-// WebService Endpoint
 @WebServlet("/ReservationServlet")
 public class ReservationServlet extends HttpServlet {
 
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         try {
-            // Getting interface (UI) data
-            int guestID = Integer.parseInt(request.getParameter("guestID"));
+            String guestIdStr = request.getParameter("guestID");
             String roomType = request.getParameter("roomType");
             String checkInDate = request.getParameter("checkInDate");
             String checkOutDate = request.getParameter("checkOutDate");
 
-            // Creating a Model object
+            // Server-side validation to ensure inputs are not empty
+            if (guestIdStr == null || guestIdStr.trim().isEmpty() ||
+                    roomType == null || roomType.trim().isEmpty() ||
+                    checkInDate == null || checkInDate.trim().isEmpty() ||
+                    checkOutDate == null || checkOutDate.trim().isEmpty()) {
+
+                request.setAttribute("errorMessage", "All fields are required. Please check your inputs.");
+                request.getRequestDispatcher("booking.jsp").forward(request, response);
+                return;
+            }
+
+            int guestID = Integer.parseInt(guestIdStr.trim());
+
             Reservation newReservation = new Reservation();
-
             newReservation.setGuestId(guestID);
-            newReservation.setRoomType(roomType);
-            newReservation.setCheckInDate(checkInDate);
-            newReservation.setCheckOutDate(checkOutDate);
+            newReservation.setRoomType(roomType.trim());
+            newReservation.setCheckInDate(checkInDate.trim());
+            newReservation.setCheckOutDate(checkOutDate.trim());
 
-            // Providing the DAO class to send to the database
             ReservationDAO reservationDAO = new ReservationDAO();
             boolean isBooked = reservationDAO.bookRoom(newReservation);
 
-            // Providing a message (Response) to the user
             if (isBooked) {
                 request.setAttribute("successMessage", "Room Booked Successfully!");
             } else {
@@ -43,14 +51,14 @@ public class ReservationServlet extends HttpServlet {
             }
 
         } catch (NumberFormatException e) {
-            // When letters or incorrect data are provided for the Guest ID
+            // Handle invalid Guest ID format (e.g., text instead of numbers)
             request.setAttribute("errorMessage", "Invalid Guest ID. Please enter a valid number.");
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("errorMessage", "An unexpected error occurred.");
+            request.setAttribute("errorMessage", "An unexpected error occurred. Please try again.");
         }
 
-        // Finally, redirecting back to the booking.jsp page
+        // Forward back to the booking page to display messages
         request.getRequestDispatcher("booking.jsp").forward(request, response);
     }
 }

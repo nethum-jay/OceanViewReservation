@@ -1,23 +1,28 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="com.oceanview.model.User, com.oceanview.dao.UserDAO" %>
 <%
+    // Security measures: Prevent browser from caching this page to protect session data
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    response.setHeader("Pragma", "no-cache");
+    response.setDateHeader("Expires", 0);
+
     String loggedUser = (String) session.getAttribute("loggedUser");
     String userRole = (String) session.getAttribute("userRole");
 
+    // Redirect to login page if the user is not authenticated
     if (loggedUser == null) {
         response.sendRedirect("login.jsp?error=Please Login to Book a Room");
         return;
     }
 
+    // Determine the correct dashboard link based on the user's role
     String dashboardLink = "customerDashboard.jsp";
     if ("Admin".equals(userRole)) { dashboardLink = "adminDashboard.jsp"; }
     else if ("Staff".equals(userRole)) { dashboardLink = "staffDashboard.jsp"; }
 
     User u = null;
-    if (loggedUser != null) {
-        UserDAO dao = new UserDAO();
-        u = dao.getUserByUsername(loggedUser);
-    }
+    UserDAO dao = new UserDAO();
+    u = dao.getUserByUsername(loggedUser);
 %>
 <!DOCTYPE html>
 <html lang="en">
@@ -62,7 +67,6 @@
         footer { text-align: center; padding: 15px; color: rgba(255,255,255,0.8); font-size: 12px; background: rgba(0,0,0,0.5); backdrop-filter: blur(5px); margin-top: auto; }
         @media (max-width: 768px) { .form-grid { grid-template-columns: 1fr; gap: 15px; } .full-width { grid-column: span 1; } }
 
-        /* Room Availability & Price Styles */
         .availability-panel { background: #e0fbfc; border: 1px solid var(--secondary); border-radius: 12px; padding: 20px; margin-bottom: 25px; text-align: center; }
         .availability-panel h4 { margin: 0 0 15px 0; color: var(--primary); font-size: 16px; font-weight: 600; }
         .room-stats { display: flex; justify-content: space-around; gap: 10px; flex-wrap: wrap; }
@@ -71,11 +75,7 @@
         .stat-box i { font-size: 20px; color: var(--secondary); margin-bottom: 8px; }
         .stat-box .type { font-size: 12px; font-weight: 600; color: var(--text-dark); }
         .stat-box .count { font-size: 16px; font-weight: 700; color: var(--primary); margin-top: 5px; }
-
-        /* Price Badge in Availability Panel */
         .price-badge { background: var(--primary); color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; margin-top: 5px; font-weight: 500; }
-
-        /* Dynamic Price Display under Dropdown */
         .price-display { font-size: 12px; color: var(--secondary); font-weight: 600; margin-top: 5px; margin-left: 5px; display: flex; flex-direction: column; gap: 2px; opacity: 0; transition: opacity 0.3s ease; }
         .price-display.visible { opacity: 1; }
         .price-value { color: #e63946; font-size: 15px; font-weight: 700; }
@@ -139,7 +139,7 @@
             <div class="alert error"><i class="fa-solid fa-circle-exclamation"></i> <%= request.getAttribute("errorMessage") %></div>
             <% } %>
 
-            <form action="AddNewReservationServlet" method="POST" autocomplete="off">
+            <form action="AddNewReservationServlet" method="POST" autocomplete="on">
                 <h3 class="section-title"><i class="fa-solid fa-user-circle"></i> Guest Details</h3>
                 <div class="form-grid">
 
@@ -147,9 +147,7 @@
                         <label>Full Name</label>
                         <i class="fa-solid fa-user input-icon"></i>
                         <input type="text" name="guestName" placeholder="Enter Full Name" required
-                               autocomplete="off" spellcheck="false"
-                               readonly onfocus="this.removeAttribute('readonly');"
-                               oninput="formatName(this)"
+                               spellcheck="false" oninput="formatName(this)"
                                title="Only letters and spaces are allowed">
                     </div>
 
@@ -157,35 +155,27 @@
                         <label>NIC / Passport Number</label>
                         <i class="fa-solid fa-id-card input-icon"></i>
                         <input type="text" name="nic" placeholder="Enter NIC or Passport" required
-                               autocomplete="off" spellcheck="false"
-                               readonly onfocus="this.removeAttribute('readonly');"
-                               oninput="formatNIC(this)"
+                               spellcheck="false" oninput="formatNIC(this)"
                                title="Enter a valid NIC">
                     </div>
 
                     <div class="input-group">
                         <label>Email Address</label>
                         <i class="fa-solid fa-envelope input-icon"></i>
-                        <input type="email" name="email" placeholder="john@example.com" required
-                               autocomplete="off" spellcheck="false"
-                               readonly onfocus="this.removeAttribute('readonly');">
+                        <input type="email" name="email" placeholder="john@example.com" required spellcheck="false">
                     </div>
 
                     <div class="input-group full-width">
                         <label>Residential Address</label>
                         <i class="fa-solid fa-map-location-dot input-icon"></i>
-                        <input type="text" name="address" placeholder="Enter full address" required
-                               autocomplete="off" spellcheck="false"
-                               readonly onfocus="this.removeAttribute('readonly');">
+                        <input type="text" name="address" placeholder="Enter full address" required spellcheck="false">
                     </div>
 
                     <div class="input-group">
                         <label>Contact Number</label>
                         <i class="fa-solid fa-phone input-icon"></i>
                         <input type="tel" name="contactNo" placeholder="07XXXXXXXX" pattern="[0-9]{10}" maxlength="10"
-                               autocomplete="off" spellcheck="false"
-                               readonly onfocus="this.removeAttribute('readonly');"
-                               value="<%= (u != null && u.getPhone() != null && !u.getPhone().equals("null")) ? u.getPhone() : "" %>" required>
+                               spellcheck="false" value="<%= (u != null && u.getPhone() != null && !u.getPhone().equals("Not Set")) ? u.getPhone() : "" %>" required>
                     </div>
                 </div>
 
@@ -268,6 +258,13 @@
             "Suite":  { price: 30000, max: 2 }
         };
 
+        // Enforce max persons logic dynamically
+        noOfPersonsInput.addEventListener('input', function() {
+            if(this.max && parseInt(this.value) > parseInt(this.max)) {
+                this.value = this.max;
+            }
+        });
+
         roomTypeSelect.addEventListener('change', function() {
             const selectedRoom = this.value;
             if (roomData[selectedRoom]) {
@@ -281,21 +278,29 @@
 
                 // Update Number of Persons constraints
                 noOfPersonsInput.max = data.max;
-                if(noOfPersonsInput.value > data.max) {
+                if(noOfPersonsInput.value && parseInt(noOfPersonsInput.value) > data.max) {
                     noOfPersonsInput.value = data.max;
-                    alert("Maximum occupancy for " + selectedRoom + " room is " + data.max);
+                    alert("Maximum occupancy for the " + selectedRoom + " room is " + data.max + ".");
                 }
             } else {
                 selectedPriceDiv.classList.remove('visible');
             }
         });
 
-        // Date & Availability Logic
+        // Date Validation & Availability Logic
         checkIn.setAttribute('min', today);
         checkIn.addEventListener('change', function() {
             checkOut.setAttribute('min', this.value);
+
+            // Auto-correct checkout date if it's before the new check-in date
+            if(checkOut.value && checkOut.value <= this.value) {
+                let nextDay = new Date(this.value);
+                nextDay.setDate(nextDay.getDate() + 1);
+                checkOut.value = nextDay.toISOString().split('T')[0];
+            }
             fetchAvailability();
         });
+
         checkOut.addEventListener('change', fetchAvailability);
 
         function fetchAvailability() {
@@ -303,11 +308,13 @@
                 fetch('RoomAvailabilityServlet?checkIn=' + checkIn.value + '&checkOut=' + checkOut.value)
                     .then(response => response.json())
                     .then(data => {
-                        document.getElementById('singleCount').innerText = data.Single;
-                        document.getElementById('doubleCount').innerText = data.Double;
-                        document.getElementById('suiteCount').innerText = data.Suite;
-                        document.getElementById('familyCount').innerText = data.Family;
-                    });
+                        // Display error fallback gracefully
+                        document.getElementById('singleCount').innerText = data.Single || '--';
+                        document.getElementById('doubleCount').innerText = data.Double || '--';
+                        document.getElementById('suiteCount').innerText = data.Suite || '--';
+                        document.getElementById('familyCount').innerText = data.Family || '--';
+                    })
+                    .catch(error => console.error('Error fetching availability:', error));
             }
         }
     });

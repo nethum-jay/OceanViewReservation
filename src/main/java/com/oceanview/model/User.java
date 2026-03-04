@@ -1,14 +1,17 @@
 package com.oceanview.model;
 
 public class User {
-    private int id;
+
+    private int id; // Primary Key in the database
     private String username;
     private String password;
-    private String role;
+    private String role; // e.g., Admin, Staff, Customer
     private String phone;
 
+    // Default constructor required for framework operations
     public User() {}
 
+    // Getters and Setters
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 

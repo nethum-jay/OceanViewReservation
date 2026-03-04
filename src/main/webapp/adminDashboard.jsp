@@ -1,10 +1,15 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%
+    // Security measures: Prevent browser from caching this page after logout
+    response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+    response.setHeader("Pragma", "no-cache");
+    response.setDateHeader("Expires", 0);
+
     // Security measures: Check the session and verify the admin data.
     String loggedUser = (String) session.getAttribute("loggedUser");
     String userRole = (String) session.getAttribute("userRole");
 
-    // Redirect to login page if not admin
+    // Redirect to login page if not admin or session expired
     if (userRole == null || !"Admin".equals(userRole)) {
         response.sendRedirect("login.jsp?error=Unauthorized Access!");
         return;
@@ -32,7 +37,6 @@
         main { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; animation: fadeIn 0.8s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Dashboard Wrapper width has been increased to show all 6 cards */
         .dashboard-wrapper { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); padding: 40px; border-radius: 20px; width: 100%; max-width: 1250px; box-shadow: 0 15px 40px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.6); }
 
         .welcome-header { text-align: center; margin-bottom: 40px; }
@@ -49,13 +53,11 @@
         .card h3 { font-size: 15px; font-weight: 600; margin-bottom: 8px; margin-top: 0; }
         .card p { font-size: 12px; color: var(--text-muted); line-height: 1.4; margin: 0; }
 
-        /* New Notification Badge Style */
         .notification-badge { position: absolute; top: 10px; right: 10px; background: var(--danger); color: white; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 10px; box-shadow: 0 2px 5px rgba(230,57,70,0.5); animation: pulse 2s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
         footer { text-align: center; padding: 20px; color: rgba(255,255,255,0.9); font-size: 13px; backdrop-filter: blur(8px); background: rgba(0,0,0,0.6); margin-top: auto; }
 
-        /* Responsive for Mobile Phones */
         @media (max-width: 1200px) {
             .grid-container { grid-template-columns: repeat(3, 1fr); }
         }
@@ -137,7 +139,7 @@
 </main>
 
 <footer>
-    &copy; 2026 Ocean View Resort - Reservation System. All Rights Reserved. <br> Developed for Advanced Programming Assignment.&copy; 2026 Ocean View Resort - Reservation System. All Rights Reserved. <br> Developed for Advanced Programming Assignment.
+    &copy; 2026 Ocean View Resort - Reservation System. All Rights Reserved. <br> Developed for Advanced Programming Assignment.
 </footer>
 
 </body>
