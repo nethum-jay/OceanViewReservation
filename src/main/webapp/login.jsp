@@ -57,13 +57,15 @@
     <div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <%= request.getParameter("error") %></div>
     <% } %>
 
-    <form action="LoginServlet" method="POST">
+    <form action="LoginServlet" method="POST" autocomplete="off">
         <div class="input-group">
             <label>Username</label>
             <div class="input-container">
                 <i class="fa-solid fa-user"></i>
-                <input type="text" name="username" placeholder="Enter your username" required
-                       oninput="formatUsername(this)">
+                <input style="display:none" type="text" name="fakeusernameremembered"/>
+
+                <input type="text" name="username" id="username" placeholder="Enter your username" required autocomplete="off"
+                       oninput="formatUsername(this)" readonly onfocus="this.removeAttribute('readonly');">
             </div>
         </div>
 
@@ -71,7 +73,10 @@
             <label>Password</label>
             <div class="input-container">
                 <i class="fa-solid fa-lock"></i>
-                <input type="password" name="password" placeholder="Enter your password" required>
+                <input style="display:none" type="password" name="fakepasswordremembered"/>
+
+                <input type="text" name="password" id="password" placeholder="Enter your password" required autocomplete="new-password"
+                       onfocus="this.type='password'; this.removeAttribute('readonly');" readonly>
             </div>
         </div>
 
@@ -95,6 +100,14 @@
             inputField.value = text.charAt(0).toUpperCase() + text.slice(1);
         }
     }
+
+    // Fallback: Clear values on page load just in case the browser forces values in
+    window.onload = function() {
+        setTimeout(function() {
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+        }, 50);
+    };
 </script>
 
 </body>

@@ -70,14 +70,20 @@
     <div class="error-msg"><i class="fa-solid fa-circle-exclamation"></i> <%= request.getAttribute("errorMessage") %></div>
     <% } %>
 
-    <form action="RegisterServlet" method="POST">
+    <form action="RegisterServlet" method="POST" autocomplete="off">
+
+        <div style="opacity: 0; position: absolute; top: -9999px; left: -9999px;">
+            <input type="text" name="absorb_user" autocomplete="username" tabindex="-1">
+            <input type="password" name="absorb_pass" autocomplete="current-password" tabindex="-1">
+        </div>
+
         <div class="input-group">
             <label>Choose Username</label>
             <div class="input-container">
                 <i class="fa-solid fa-user"></i>
-                <input type="text" name="username" placeholder="Letters only (e.g. Kasun)" required
-                       title="Username can only contain letters and spaces."
-                       oninput="formatUsername(this)">
+                <input type="text" name="username" id="username" placeholder="Letters only (e.g. Kasun)" required
+                       title="Username can only contain letters and spaces." autocomplete="nope"
+                       oninput="formatUsername(this)" readonly onfocus="this.removeAttribute('readonly');">
             </div>
         </div>
 
@@ -85,9 +91,10 @@
             <label>Create Password</label>
             <div class="input-container">
                 <i class="fa-solid fa-lock"></i>
-                <input type="password" name="password" placeholder="Min 8 chars, 1 number & 1 symbol" required
-                       pattern="(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}"
-                       title="Password must be at least 8 characters long, and contain at least one number and one special symbol (e.g., @, #, $).">
+                <input type="text" name="password" id="password" placeholder="Min 8 chars, 1 number & 1 symbol" required
+                       pattern="(?=.*\d)(?=.*[^a-zA-Z0-9]).{8,}" autocomplete="new-password"
+                       title="Password must be at least 8 characters long, and contain at least one number and one special symbol (e.g., @, #, $)."
+                       readonly onfocus="this.type='password'; this.removeAttribute('readonly');">
             </div>
         </div>
 
@@ -95,9 +102,9 @@
             <label>Phone Number</label>
             <div class="input-container">
                 <i class="fa-solid fa-phone"></i>
-                <input type="tel" name="phone" placeholder="07XXXXXXXX" required pattern="[0-9]{10}" maxlength="10"
-                       title="Please enter a valid 10-digit phone number."
-                       oninput="formatPhone(this)">
+                <input type="tel" name="phone" id="phone" placeholder="07XXXXXXXX" required pattern="[0-9]{10}" maxlength="10"
+                       title="Please enter a valid 10-digit phone number." autocomplete="nope"
+                       oninput="formatPhone(this)" readonly onfocus="this.removeAttribute('readonly');">
             </div>
         </div>
 
@@ -126,6 +133,15 @@
     function formatPhone(inputField) {
         inputField.value = inputField.value.replace(/[^0-9]/g, '');
     }
+
+    // Fallback: Clear values on page load just in case the browser forces values in
+    window.onload = function() {
+        setTimeout(function() {
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('phone').value = '';
+        }, 50);
+    };
 </script>
 
 </body>

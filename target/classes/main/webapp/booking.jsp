@@ -139,43 +139,54 @@
             <div class="alert error"><i class="fa-solid fa-circle-exclamation"></i> <%= request.getAttribute("errorMessage") %></div>
             <% } %>
 
-            <form action="AddNewReservationServlet" method="POST" autocomplete="on">
+            <form action="AddNewReservationServlet" method="POST" autocomplete="off">
+                <input style="display:none" type="text" name="fakename"/>
+                <input style="display:none" type="text" name="fakenic"/>
+                <input style="display:none" type="email" name="fakeemail"/>
+                <input style="display:none" type="text" name="fakeaddress"/>
+
                 <h3 class="section-title"><i class="fa-solid fa-user-circle"></i> Guest Details</h3>
                 <div class="form-grid">
 
                     <div class="input-group full-width">
                         <label>Full Name</label>
                         <i class="fa-solid fa-user input-icon"></i>
-                        <input type="text" name="guestName" placeholder="Enter Full Name" required
+                        <input type="text" name="guestName" id="guestName" placeholder="Enter Full Name" required autocomplete="off"
                                spellcheck="false" oninput="formatName(this)"
-                               title="Only letters and spaces are allowed">
+                               title="Only letters and spaces are allowed"
+                               readonly onfocus="this.removeAttribute('readonly');">
                     </div>
 
                     <div class="input-group">
                         <label>NIC / Passport Number</label>
                         <i class="fa-solid fa-id-card input-icon"></i>
-                        <input type="text" name="nic" placeholder="Enter NIC or Passport" required
+                        <input type="text" name="nic" id="nic" placeholder="Enter NIC or Passport" required autocomplete="off"
                                spellcheck="false" oninput="formatNIC(this)"
-                               title="Enter a valid NIC">
+                               title="Enter a valid NIC"
+                               readonly onfocus="this.removeAttribute('readonly');">
                     </div>
 
                     <div class="input-group">
                         <label>Email Address</label>
                         <i class="fa-solid fa-envelope input-icon"></i>
-                        <input type="email" name="email" placeholder="john@example.com" required spellcheck="false">
+                        <input type="email" name="email" id="email" placeholder="john@example.com" required autocomplete="off" spellcheck="false"
+                               readonly onfocus="this.removeAttribute('readonly');">
                     </div>
 
                     <div class="input-group full-width">
                         <label>Residential Address</label>
                         <i class="fa-solid fa-map-location-dot input-icon"></i>
-                        <input type="text" name="address" placeholder="Enter full address" required spellcheck="false">
+                        <input type="text" name="address" id="address" placeholder="Enter full address" required autocomplete="off" spellcheck="false"
+                               readonly onfocus="this.removeAttribute('readonly');">
                     </div>
 
                     <div class="input-group">
                         <label>Contact Number</label>
                         <i class="fa-solid fa-phone input-icon"></i>
-                        <input type="tel" name="contactNo" placeholder="07XXXXXXXX" pattern="[0-9]{10}" maxlength="10"
-                               spellcheck="false" value="<%= (u != null && u.getPhone() != null && !u.getPhone().equals("Not Set")) ? u.getPhone() : "" %>" required>
+                        <input type="tel" name="contactNo" id="contactNo" placeholder="07XXXXXXXX" pattern="[0-9]{10}" maxlength="10"
+                               autocomplete="off" spellcheck="false"
+                               value="<%= (u != null && u.getPhone() != null && !u.getPhone().equals("Not Set")) ? u.getPhone() : "" %>" required
+                            <%= (u == null || u.getPhone() == null || u.getPhone().equals("Not Set")) ? "readonly onfocus=\"this.removeAttribute('readonly');\"" : "" %>>
                     </div>
                 </div>
 
@@ -239,6 +250,22 @@
         inputField.value = inputField.value.replace(/[^0-9vVxX]/g, '').toUpperCase();
         if(inputField.value.length > 12) inputField.value = inputField.value.substring(0, 12);
     }
+
+    // Fallback: Clear values on page load just in case the browser forces values in
+    window.onload = function() {
+        setTimeout(function() {
+            document.getElementById('guestName').value = '';
+            document.getElementById('nic').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('address').value = '';
+
+            // Only clear phone if it wasn't pre-filled from database
+            var phoneField = document.getElementById('contactNo');
+            if(phoneField.hasAttribute('readonly')) {
+                phoneField.value = '';
+            }
+        }, 50);
+    };
 
     document.addEventListener('DOMContentLoaded', function() {
         const today = new Date().toISOString().split('T')[0];
