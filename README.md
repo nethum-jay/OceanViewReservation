@@ -6,7 +6,7 @@ A distributed web application developed using pure Java EE (Servlets/JSP) and My
 This system is designed to replace the manual reservation process with a digital solution. It features a layered MVC architecture (Model-View-Controller) to ensure maintainability, security, and scalability, following professional software engineering standards. Developed as part of the Advanced Programming assignment.
 
 ## 🚀 Key Features
-* **Role-Based Access Control (RBAC):** Dedicated, secure dashboards for Admin, Staff, and Customers.
+* **Role-Based Acces s Control (RBAC):** Dedicated, secure dashboards for Admin, Staff, and Customers.
 * **Guest Registration & Authentication:** Secure login and registration with strong password validations.
 * **Room Booking & Management:** Real-time room availability checks and dynamic price calculation.
 * **Admin & Staff Controls:** Full CRUD operations for users and reservations, with graphical reporting tools.
@@ -58,13 +58,14 @@ Deploy the Application:
     
     Run the server and navigate to http://localhost:8080/OceanViewReservation (port may vary based on your Tomcat setup) to view the application.
 
-📂 Project Structure
+## 📂 Project Structure
 
+```text
 OceanViewReservation/
-├── database/               (Contains oceanview_db.sql for DB setup)
-├── src/main/java/com/oceanview/
-│   ├── controller/         (Servlets for handling HTTP requests)
-│   ├── dao/                (Data Access Objects for MySQL operations)
-│   ├── model/              (Data Models / POJOs)
-│   └── util/               (DBConnection Singleton configuration)
-└── src/main/webapp/        (JSP pages, CSS, and Frontend resources)
+ ├── database/               (Contains oceanview_db.sql for DB setup)
+ ├── src/main/java/com/oceanview/
+ │   ├── controller/         (Servlets for handling HTTP requests)
+ │   ├── dao/                (Data Access Objects for MySQL operations)
+ │   ├── model/              (Data Models / POJOs)
+ │   └── util/               (DBConnection Singleton configuration)
+ └── src/main/webapp/        (JSP pages, CSS, and Frontend resources)
