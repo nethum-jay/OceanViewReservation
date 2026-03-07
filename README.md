@@ -58,13 +58,14 @@ Deploy the Application:
     
     Run the server and navigate to http://localhost:8080/OceanViewReservation (port may vary based on your Tomcat setup) to view the application.
 
-📂 Project Structure
+## 📂 Project Structure
 
+```text
 OceanViewReservation/
-├── database/               (Contains oceanview_db.sql for DB setup)
-├── src/main/java/com/oceanview/
-│   ├── controller/         (Servlets for handling HTTP requests)
-│   ├── dao/                (Data Access Objects for MySQL operations)
-│   ├── model/              (Data Models / POJOs)
-│   └── util/               (DBConnection Singleton configuration)
-└── src/main/webapp/        (JSP pages, CSS, and Frontend resources)
+ ├── database/               (Contains oceanview_db.sql for DB setup)
+ ├── src/main/java/com/oceanview/
+ │   ├── controller/         (Servlets for handling HTTP requests)
+ │   ├── dao/                (Data Access Objects for MySQL operations)
+ │   ├── model/              (Data Models / POJOs)
+ │   └── util/               (DBConnection Singleton configuration)
+ └── src/main/webapp/        (JSP pages, CSS, and Frontend resources)
