@@ -68,4 +68,8 @@ OceanViewReservation/
  │   ├── dao/                (Data Access Objects for MySQL operations)
  │   ├── model/              (Data Models / POJOs)
  │   └── util/               (DBConnection Singleton configuration)
+<<<<<<< HEAD
  └── src/main/webapp/        (JSP pages, CSS, and Frontend resources)
+=======
+ └── src/main/webapp/        (JSP pages, CSS, and Frontend resources)
+>>>>>>> 4b2ed4ada2bfd45b120edf70d05ae6f1a48be365
